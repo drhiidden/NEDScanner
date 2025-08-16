@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QMainWindow, QTabWidget, QVBoxLayout, QWidget
-from nedscaner.ui.wifi_tab import WifiTab
+from .wifi_tab import WifiTab
 
 class MainWindow(QMainWindow):
     def __init__(self):

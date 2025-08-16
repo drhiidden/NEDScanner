@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit
 from PyQt6.QtCore import pyqtSlot
-from nedscaner.adapters.nmcli_adapter import simulate_wifi_scan
+from ..adapters.nmcli_adapter import simulate_wifi_scan
 import asyncio
 from qasync import QEventLoop
 
