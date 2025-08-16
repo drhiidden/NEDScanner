@@ -6,8 +6,10 @@ import asyncio
 import logging
 import os
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QFile, QTextStream
 from qasync import QEventLoop, QApplication as QAsyncApplication
 from app.ui.main_window import MainWindow
+from app.ui.resources import init_resources
 
 # Configurar logging
 logging.basicConfig(
@@ -20,6 +22,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger("NEDScaner")
 
+def load_stylesheet(app):
+    """
+    Carga la hoja de estilos QSS y la aplica a la aplicación.
+    """
+    try:
+        style_file = QFile("app/ui/styles.qss")
+        if not style_file.exists():
+            logger.warning("Archivo de estilos no encontrado: app/ui/styles.qss")
+            return False
+            
+        style_file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text)
+        stream = QTextStream(style_file)
+        stylesheet = stream.readAll()
+        app.setStyleSheet(stylesheet)
+        style_file.close()
+        
+        logger.info("Estilos aplicados correctamente")
+        return True
+    except Exception as e:
+        logger.error(f"Error al cargar los estilos: {e}")
+        return False
+
 async def main():
     """
     Función principal que inicia la aplicación NEDScaner.
@@ -27,10 +51,16 @@ async def main():
     """
     logger.info("Iniciando NEDScaner...")
     
+    # Inicializar recursos
+    init_resources()
+    
     # Crear la aplicación Qt
     app = QAsyncApplication(sys.argv)
     app.setApplicationName("NEDScaner")
     app.setOrganizationName("NEDScaner")
+    
+    # Aplicar estilos
+    load_stylesheet(app)
     
     # Configurar el bucle de eventos
     loop = QEventLoop(app)
