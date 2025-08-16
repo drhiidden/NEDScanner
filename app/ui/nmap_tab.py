@@ -198,7 +198,8 @@ class NmapTab(QWidget):
         # Llenar el árbol de hosts
         for host in sample_hosts:
             item = QTreeWidgetItem(self.hosts_tree)
-            item.setText(0, f"{host['ip']} {f'({host['hostname']})' if host['hostname'] else ''}")
+            hostname_display = f"({host['hostname']})" if host['hostname'] else ""
+            item.setText(0, f"{host['ip']} {hostname_display}")
             item.setText(1, host['status'])
             item.setData(0, Qt.ItemDataRole.UserRole, host)  # Guardar datos completos
         

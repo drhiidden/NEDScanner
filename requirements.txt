@@ -1,4 +1,14 @@
-PyQt6
-asyncio
-xmltodict
-qasync
+# Dependencias principales
+PyQt6>=6.4.0
+qasync>=0.23.0
+asyncio>=3.4.3
+xmltodict>=0.13.0
+
+# Dependencias para adaptadores de herramientas
+python-nmap>=0.7.1
+scapy>=2.5.0
+dbus-next>=0.2.3
+
+# Dependencias opcionales
+keyring>=23.0.0
+cryptography>=38.0.0
