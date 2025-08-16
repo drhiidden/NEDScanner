@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QFile, QTextStream
 from qasync import QEventLoop, QApplication as QAsyncApplication
 from app.ui.main_window import MainWindow
-from app.ui.resources import init_resources
 
 # Configurar logging
 logging.basicConfig(
@@ -50,9 +49,6 @@ async def main():
     Configura el bucle de eventos asíncrono y muestra la ventana principal.
     """
     logger.info("Iniciando NEDScaner...")
-    
-    # Inicializar recursos
-    init_resources()
     
     # Crear la aplicación Qt
     app = QAsyncApplication(sys.argv)

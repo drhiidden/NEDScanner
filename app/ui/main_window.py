@@ -7,6 +7,7 @@ from app.ui.nmap_tab import NmapTab
 from app.ui.discovery_tab import DiscoveryTab
 from app.ui.results_tab import ResultsTab
 from app.ui.settings_tab import SettingsTab
+from app.ui.icon_provider import IconProvider
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -23,33 +24,33 @@ class MainWindow(QMainWindow):
         
         # Crear barra de herramientas
         self.toolbar = QToolBar("Herramientas Principales")
-        self.toolbar.setIconSize(QSize(16, 16))
+        self.toolbar.setIconSize(QSize(24, 24))
         self.addToolBar(self.toolbar)
         
         # Acciones para la barra de herramientas
-        self.action_scan_wifi = QAction("Escanear Wi-Fi", self)
+        self.action_scan_wifi = QAction(IconProvider.get_icon("wifi"), "Escanear Wi-Fi", self)
         self.action_scan_wifi.setStatusTip("Iniciar un escaneo de redes Wi-Fi")
         self.action_scan_wifi.triggered.connect(self.start_wifi_scan)
         self.toolbar.addAction(self.action_scan_wifi)
         
-        self.action_scan_network = QAction("Escanear Red", self)
+        self.action_scan_network = QAction(IconProvider.get_icon("network"), "Escanear Red", self)
         self.action_scan_network.setStatusTip("Iniciar un escaneo de red con Nmap")
         self.action_scan_network.triggered.connect(self.start_network_scan)
         self.toolbar.addAction(self.action_scan_network)
         
-        self.action_quick_discovery = QAction("Descubrimiento Rápido", self)
+        self.action_quick_discovery = QAction(IconProvider.get_icon("discovery"), "Descubrimiento Rápido", self)
         self.action_quick_discovery.setStatusTip("Iniciar un descubrimiento rápido de dispositivos")
         self.action_quick_discovery.triggered.connect(self.start_quick_discovery)
         self.toolbar.addAction(self.action_quick_discovery)
         
         self.toolbar.addSeparator()
         
-        self.action_view_results = QAction("Ver Resultados", self)
+        self.action_view_results = QAction(IconProvider.get_icon("results"), "Ver Resultados", self)
         self.action_view_results.setStatusTip("Ver historial de escaneos")
         self.action_view_results.triggered.connect(self.show_results)
         self.toolbar.addAction(self.action_view_results)
         
-        self.action_settings = QAction("Configuración", self)
+        self.action_settings = QAction(IconProvider.get_icon("settings"), "Configuración", self)
         self.action_settings.setStatusTip("Abrir configuración")
         self.action_settings.triggered.connect(self.show_settings)
         self.toolbar.addAction(self.action_settings)
@@ -60,7 +61,7 @@ class MainWindow(QMainWindow):
         # Menú Archivo
         file_menu = self.menu_bar.addMenu("&Archivo")
         
-        action_exit = QAction("&Salir", self)
+        action_exit = QAction(IconProvider.get_icon("exit"), "&Salir", self)
         action_exit.setShortcut("Ctrl+Q")
         action_exit.setStatusTip("Salir de la aplicación")
         action_exit.triggered.connect(self.close)
@@ -84,7 +85,7 @@ class MainWindow(QMainWindow):
         # Menú Ayuda
         help_menu = self.menu_bar.addMenu("A&yuda")
         
-        action_about = QAction("&Acerca de", self)
+        action_about = QAction(IconProvider.get_icon("about"), "&Acerca de", self)
         action_about.setStatusTip("Mostrar información sobre la aplicación")
         action_about.triggered.connect(self.show_about)
         help_menu.addAction(action_about)
@@ -110,23 +111,23 @@ class MainWindow(QMainWindow):
         """
         # Pestaña Wi-Fi
         self.wifi_tab = WifiTab()
-        self.tab_widget.addTab(self.wifi_tab, "Wi-Fi")
+        self.tab_widget.addTab(self.wifi_tab, IconProvider.get_icon("wifi"), "Wi-Fi")
         
         # Pestaña Nmap
         self.nmap_tab = NmapTab()
-        self.tab_widget.addTab(self.nmap_tab, "Escaneo de Red")
+        self.tab_widget.addTab(self.nmap_tab, IconProvider.get_icon("network"), "Escaneo de Red")
         
         # Pestaña Descubrimiento
         self.discovery_tab = DiscoveryTab()
-        self.tab_widget.addTab(self.discovery_tab, "Descubrimiento Rápido")
+        self.tab_widget.addTab(self.discovery_tab, IconProvider.get_icon("discovery"), "Descubrimiento Rápido")
         
         # Pestaña Resultados
         self.results_tab = ResultsTab()
-        self.tab_widget.addTab(self.results_tab, "Resultados")
+        self.tab_widget.addTab(self.results_tab, IconProvider.get_icon("results"), "Resultados")
         
         # Pestaña Configuración
         self.settings_tab = SettingsTab()
-        self.tab_widget.addTab(self.settings_tab, "Configuración")
+        self.tab_widget.addTab(self.settings_tab, IconProvider.get_icon("settings"), "Configuración")
     
     def start_wifi_scan(self):
         """Inicia un escaneo Wi-Fi desde la barra de herramientas"""
