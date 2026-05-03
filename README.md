@@ -1,6 +1,16 @@
-# NEDScaner
+![NEDScanner banner](docs/banner.png)
 
-NEDScaner es una aplicación GUI desarrollada con PyQt6 para la detección y visualización de redes en sistemas Linux, siguiendo una arquitectura hexagonal que reutiliza herramientas existentes como Nmap, NetworkManager y Scapy.
+# NEDScanner
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
+[![PyQt6](https://img.shields.io/badge/PyQt6-GUI-brightgreen.svg)](https://pypi.org/project/PyQt6/)
+[![Linux](https://img.shields.io/badge/Platform-Linux-orange.svg)](#)
+![visitors](https://komarev.com/ghpvc/?username=drhiidden&repo=NEDScanner&color=00ff88&style=flat-square)
+
+**See your network, own your security.**
+
+NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y visualización de redes en sistemas Linux, siguiendo una arquitectura hexagonal que reutiliza herramientas existentes como Nmap, NetworkManager y Scapy.
 
 ## Características
 
@@ -139,3 +149,8 @@ Si hay errores al iniciar la aplicación:
 ## Licencia
 
 Este proyecto está licenciado bajo [LICENCIA] - vea el archivo LICENSE para más detalles.
+---
+
+## Metodología
+
+Desarrollado con [HCP (Human-Code-AI Protocol)](https://github.com/haletheia/human-code-ai-protocol) — protocolo git-native para Context Engineering.
