@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![PyQt6](https://img.shields.io/badge/PyQt6-GUI-brightgreen.svg)](https://pypi.org/project/PyQt6/)
 [![Linux](https://img.shields.io/badge/Platform-Linux-orange.svg)](#)
-![views](https://visitor-badge.laobi.icu/badge?page_id=drhiidden.NEDScanner&title=views&left_color=555&right_color=0e75b6)
+![views](https://komarev.com/ghpvc/?username=drhiidden&repo=NEDScanner&label=views&color=0e75b6)
 **See your network, own your security.**
 
 NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y visualización de redes en sistemas Linux, siguiendo una arquitectura hexagonal que reutiliza herramientas existentes como Nmap, NetworkManager y Scapy.
