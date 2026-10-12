@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![PyQt6](https://img.shields.io/badge/PyQt6-GUI-brightgreen.svg)](https://pypi.org/project/PyQt6/)
 [![Linux](https://img.shields.io/badge/Platform-Linux-orange.svg)](#)
-![visitors](https://komarev.com/ghpvc/?username=drhiidden&repo=NEDScanner&color=00ff88&style=flat-square)
+[![views](https://komarev.com/ghpvc/?username=lab-nedscanner&label=views&color=0e75b6)](https://github.com/drhiidden/NEDScanner)
 
 **See your network, own your security.**
 
