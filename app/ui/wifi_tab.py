@@ -2,14 +2,23 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QTextEdit, QTableWidget, QTableWidgetItem, QLabel, 
                              QProgressBar, QGroupBox, QHeaderView, QComboBox,
                              QCheckBox, QSpinBox, QFormLayout)
-from PyQt6.QtCore import Qt, pyqtSlot, QTimer
-import asyncio
+import time
+
+from PyQt6.QtCore import Qt
+from qasync import asyncSlot
+
+from app.adapters.nmcli_adapter import WifiScanAdapter
+from app.core.config import is_demo_mode
+from app.core.scan_history import ScanRecord, append_record
+from app.models.wifi_network import WifiNetwork
+
 
 class WifiTab(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
         self.scanning = False
+        self._adapter = WifiScanAdapter()
         
     def init_ui(self):
         # Layout principal
@@ -99,51 +108,50 @@ class WifiTab(QWidget):
         
         main_layout.addLayout(status_layout)
     
-    @pyqtSlot()
-    def start_scan(self):
-        """Inicia el proceso de escaneo Wi-Fi"""
+    @asyncSlot()
+    async def start_scan(self):
         if self.scanning:
             return
-            
+
         self.scanning = True
         self.scan_button.setEnabled(False)
         self.status_label.setText("Escaneando redes Wi-Fi...")
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)  # Modo indeterminado
-        
-        # Simular escaneo (esto se reemplazará con el adaptador real)
-        QTimer.singleShot(2000, self.on_scan_complete)
-    
-    def on_scan_complete(self):
-        """Callback cuando el escaneo se completa"""
-        self.scanning = False
-        self.scan_button.setEnabled(True)
-        self.status_label.setText("Escaneo completado")
-        self.progress_bar.setVisible(False)
-        
-        # Simular resultados (esto se reemplazará con datos reales)
-        self.populate_sample_data()
-    
-    def populate_sample_data(self):
-        """Llena la tabla con datos de ejemplo"""
-        self.networks_table.setRowCount(0)  # Limpiar tabla
-        
-        # Datos de ejemplo
-        sample_networks = [
-            {"ssid": "Red-Hogar", "bssid": "AA:BB:CC:DD:EE:FF", "channel": 1, "signal": -45, "security": "WPA2"},
-            {"ssid": "Oficina-5G", "bssid": "11:22:33:44:55:66", "channel": 36, "signal": -60, "security": "WPA2-Enterprise"},
-            {"ssid": "Invitados", "bssid": "AA:BB:CC:00:11:22", "channel": 11, "signal": -72, "security": "Abierta"}
-        ]
-        
-        for network in sample_networks:
+        self.progress_bar.setRange(0, 0)
+        self.networks_table.setRowCount(0)
+
+        iface = self.interface_combo.currentText() or None
+        try:
+            networks = await self._adapter.list_networks(iface)
+            self.populate_networks(networks)
+            suffix = " (demo)" if is_demo_mode() else ""
+            self.status_label.setText(f"Escaneo completado — {len(networks)} red(es){suffix}")
+            append_record(
+                ScanRecord(
+                    kind="wifi",
+                    target=iface or "default",
+                    summary=f"{len(networks)} networks",
+                    payload=[n.__dict__ for n in networks],
+                )
+            )
+        except Exception as exc:
+            self.status_label.setText(f"Error Wi-Fi: {exc}")
+        finally:
+            self.scanning = False
+            self.scan_button.setEnabled(True)
+            self.progress_bar.setVisible(False)
+
+    def populate_networks(self, networks: list[WifiNetwork]) -> None:
+        self.networks_table.setRowCount(0)
+        for network in networks:
             row = self.networks_table.rowCount()
             self.networks_table.insertRow(row)
-            
-            self.networks_table.setItem(row, 0, QTableWidgetItem(network["ssid"]))
-            self.networks_table.setItem(row, 1, QTableWidgetItem(network["bssid"]))
-            self.networks_table.setItem(row, 2, QTableWidgetItem(str(network["channel"])))
-            self.networks_table.setItem(row, 3, QTableWidgetItem(f"{network['signal']} dBm"))
-            self.networks_table.setItem(row, 4, QTableWidgetItem(network["security"]))
+            self.networks_table.setItem(row, 0, QTableWidgetItem(network.ssid))
+            self.networks_table.setItem(row, 1, QTableWidgetItem(network.bssid))
+            self.networks_table.setItem(row, 2, QTableWidgetItem(str(network.channel)))
+            self.networks_table.setItem(row, 3, QTableWidgetItem(f"{network.signal_dbm} dBm"))
+            self.networks_table.setItem(row, 4, QTableWidgetItem(network.security))
+            self.networks_table.item(row, 0).setData(Qt.ItemDataRole.UserRole, network)
     
     def on_network_selected(self):
         """Maneja la selección de una red en la tabla"""
@@ -176,7 +184,7 @@ class WifiTab(QWidget):
 
                     Frecuencia: {2400 + int(channel) * 5} MHz
                     Ancho de Banda: 20 MHz
-                    Última actualización: {asyncio.get_event_loop().time():.2f}s
+                    Última actualización: {time.strftime('%H:%M:%S')}
                     """
         self.details_text.setText(details)
     

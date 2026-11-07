@@ -3,14 +3,21 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QProgressBar, QGroupBox, QHeaderView, QComboBox,
                              QCheckBox, QSpinBox, QFormLayout, QLineEdit, 
                              QSplitter, QTreeWidget, QTreeWidgetItem)
-from PyQt6.QtCore import Qt, pyqtSlot, QTimer
-import asyncio
+from PyQt6.QtCore import Qt
+from qasync import asyncSlot
+
+from app.adapters.nmap_adapter import NmapScanAdapter
+from app.core.config import is_demo_mode
+from app.core.scan_history import ScanRecord, append_record
+from app.models.nmap_host import NmapHost
+
 
 class NmapTab(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
         self.scanning = False
+        self._adapter = NmapScanAdapter()
         
     def init_ui(self):
         # Layout principal
@@ -117,93 +124,76 @@ class NmapTab(QWidget):
         
         main_layout.addLayout(status_layout)
     
-    @pyqtSlot()
-    def start_scan(self):
-        """Inicia el proceso de escaneo Nmap"""
+    @asyncSlot()
+    async def start_scan(self):
         if self.scanning:
             return
-            
+
         target = self.target_input.text().strip()
         if not target:
             self.status_label.setText("Error: Especifique un objetivo para el escaneo")
             return
-            
+
         self.scanning = True
         self.scan_button.setEnabled(False)
         self.status_label.setText(f"Escaneando {target}...")
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)  # Modo indeterminado
-        
-        # Limpiar resultados anteriores
+        self.progress_bar.setRange(0, 0)
+
         self.hosts_tree.clear()
         self.ports_table.setRowCount(0)
         self.host_info_text.clear()
-        
-        # Simular escaneo (esto se reemplazará con el adaptador real)
-        QTimer.singleShot(3000, self.on_scan_complete)
-    
-    def on_scan_complete(self):
-        """Callback cuando el escaneo se completa"""
-        self.scanning = False
-        self.scan_button.setEnabled(True)
-        self.status_label.setText("Escaneo completado")
-        self.progress_bar.setVisible(False)
-        
-        # Simular resultados (esto se reemplazará con datos reales)
-        self.populate_sample_data()
-    
-    def populate_sample_data(self):
-        """Llena los resultados con datos de ejemplo"""
-        # Datos de ejemplo
-        sample_hosts = [
-            {
-                "ip": "192.168.1.1",
-                "hostname": "router.local",
-                "status": "up",
-                "mac": "AA:BB:CC:DD:EE:FF",
-                "vendor": "Cisco",
-                "os": "Linux 3.x",
+
+        profile = self.scan_type_combo.currentIndex()
+        try:
+            hosts = await self._adapter.scan(
+                target,
+                profile_index=profile,
+                service_version=self.service_version_check.isChecked(),
+                os_detection=self.os_detection_check.isChecked(),
+            )
+            self.populate_hosts(hosts)
+            suffix = " (demo)" if is_demo_mode() else ""
+            self.status_label.setText(f"Escaneo completado — {len(hosts)} host(s){suffix}")
+            append_record(
+                ScanRecord(
+                    kind="nmap",
+                    target=target,
+                    summary=f"{len(hosts)} hosts",
+                    payload=[{"ip": h.ip, "ports": len(h.ports)} for h in hosts],
+                )
+            )
+        except Exception as exc:
+            self.status_label.setText(f"Error Nmap: {exc}")
+        finally:
+            self.scanning = False
+            self.scan_button.setEnabled(True)
+            self.progress_bar.setVisible(False)
+
+    def populate_hosts(self, hosts: list[NmapHost]) -> None:
+        for host in hosts:
+            host_dict = {
+                "ip": host.ip,
+                "hostname": host.hostname,
+                "status": host.status,
+                "mac": host.mac,
+                "vendor": host.vendor,
+                "os": host.os_match,
                 "ports": [
-                    {"port": 22, "protocol": "tcp", "state": "open", "service": "ssh"},
-                    {"port": 80, "protocol": "tcp", "state": "open", "service": "http"},
-                    {"port": 443, "protocol": "tcp", "state": "open", "service": "https"}
-                ]
-            },
-            {
-                "ip": "192.168.1.100",
-                "hostname": "desktop.local",
-                "status": "up",
-                "mac": "11:22:33:44:55:66",
-                "vendor": "Dell",
-                "os": "Windows 10",
-                "ports": [
-                    {"port": 135, "protocol": "tcp", "state": "open", "service": "msrpc"},
-                    {"port": 445, "protocol": "tcp", "state": "open", "service": "microsoft-ds"},
-                    {"port": 3389, "protocol": "tcp", "state": "open", "service": "ms-wbt-server"}
-                ]
-            },
-            {
-                "ip": "192.168.1.101",
-                "hostname": "",
-                "status": "up",
-                "mac": "AA:BB:CC:00:11:22",
-                "vendor": "Apple",
-                "os": "macOS 11",
-                "ports": [
-                    {"port": 22, "protocol": "tcp", "state": "open", "service": "ssh"}
-                ]
+                    {
+                        "port": p.port,
+                        "protocol": p.protocol,
+                        "state": p.state,
+                        "service": p.service,
+                    }
+                    for p in host.ports
+                ],
             }
-        ]
-        
-        # Llenar el árbol de hosts
-        for host in sample_hosts:
             item = QTreeWidgetItem(self.hosts_tree)
-            hostname_display = f"({host['hostname']})" if host['hostname'] else ""
-            item.setText(0, f"{host['ip']} {hostname_display}")
-            item.setText(1, host['status'])
-            item.setData(0, Qt.ItemDataRole.UserRole, host)  # Guardar datos completos
-        
-        # Expandir el árbol
+            hostname_display = f"({host.hostname})" if host.hostname else ""
+            item.setText(0, f"{host.ip} {hostname_display}")
+            item.setText(1, host.status)
+            item.setData(0, Qt.ItemDataRole.UserRole, host_dict)
         self.hosts_tree.expandAll()
     
     def on_host_selected(self):

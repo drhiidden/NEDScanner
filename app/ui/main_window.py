@@ -161,3 +161,11 @@ class MainWindow(QMainWindow):
         """Muestra información sobre la aplicación"""
         # Aquí se implementaría un diálogo de "Acerca de"
         self.status_bar.showMessage("NEDScaner - Aplicación para detección y visualización de redes Linux")
+
+    def handoff_to_nmap(self, ips: list[str]) -> None:
+        """Desde descubrimiento → pestaña Nmap con objetivo prefijado."""
+        self.tab_widget.setCurrentWidget(self.nmap_tab)
+        self.nmap_tab.target_input.setText(",".join(ips))
+        self.nmap_tab.scan_type_combo.setCurrentIndex(1)
+        self.status_bar.showMessage(f"Nmap listo para: {', '.join(ips)}")
+        self.nmap_tab.start_scan()
