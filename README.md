@@ -22,6 +22,8 @@ NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y vi
 
 Roadmap inspirado en [NetPwn](https://github.com/letox4/netpwn) (solo patrones; licencia MIT): [docs/NETPWN-PARITY-ROADMAP.md](docs/NETPWN-PARITY-ROADMAP.md).
 
+**Antes de push:** `./scripts/verify-local.sh` (modo demo, sin CI remoto).
+
 ## Requisitos
 
 - Python 3.7+
