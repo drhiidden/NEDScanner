@@ -5,10 +5,11 @@ import sys
 import asyncio
 import logging
 import os
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtCore import QFile, QTextStream
 from qasync import QEventLoop, QApplication as QAsyncApplication
 from app.ui.main_window import MainWindow
+from app.core.config import is_demo_mode
 
 # Configurar logging
 logging.basicConfig(
@@ -65,8 +66,15 @@ async def main():
     # Crear y mostrar la ventana principal
     main_window = MainWindow()
     main_window.show()
+
+    if is_demo_mode():
+        QMessageBox.information(
+            main_window,
+            "Modo demo",
+            "NEDSCANNER_DEMO activo: descubrimiento usa red ficticia (sin raw sockets).",
+        )
     
-    logger.info("Interfaz de usuario inicializada")
+    logger.info("Interfaz de usuario inicializada (demo=%s)", is_demo_mode())
     
     # Ejecutar el bucle de eventos
     try:

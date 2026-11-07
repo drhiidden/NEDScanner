@@ -18,6 +18,9 @@ NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y vi
 - **Descubrimiento rápido**: Utiliza técnicas ligeras (ARP, ICMP, mDNS) para encontrar dispositivos.
 - **Historial y comparación**: Almacena resultados de escaneos para análisis y comparación.
 - **Interfaz asíncrona**: No bloquea la UI durante operaciones de red intensivas.
+- **Modo demo**: `NEDSCANNER_DEMO=1 python main.py` o `python main.py --demo` (sin root; útil en WSL/CI).
+
+Roadmap inspirado en [NetPwn](https://github.com/letox4/netpwn) (solo patrones; licencia MIT): [docs/NETPWN-PARITY-ROADMAP.md](docs/NETPWN-PARITY-ROADMAP.md).
 
 ## Requisitos
 

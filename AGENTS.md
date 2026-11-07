@@ -435,8 +435,11 @@ Si encuentras un bug o tienes una sugerencia:
 
 ## 🚀 Roadmap
 
-- [ ] **v1.1**: Exportar resultados a PDF/JSON
-- [ ] **v1.2**: Integración con Wireshark para análisis de tráfico
+Ver [docs/NETPWN-PARITY-ROADMAP.md](docs/NETPWN-PARITY-ROADMAP.md) (paridad defensiva vs NetPwn GPL).
+
+- [x] **v1.0**: Descubrimiento ARP/ICMP real + modo demo
+- [ ] **v1.1**: Exportar resultados a PDF/JSON · Wi-Fi/Nmap wired
+- [ ] **v1.2**: Topología grafo · integración Wireshark (solo lectura)
 - [ ] **v1.3**: Notificaciones de nuevos hosts detectados
 - [ ] **v2.0**: Modo daemon (monitoreo continuo en background)
 

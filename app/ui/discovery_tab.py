@@ -3,14 +3,23 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QProgressBar, QGroupBox, QHeaderView, QComboBox,
                              QCheckBox, QSpinBox, QFormLayout, QLineEdit, 
                              QRadioButton, QButtonGroup, QGridLayout)
-from PyQt6.QtCore import Qt, pyqtSlot, QTimer
+from PyQt6.QtCore import Qt, pyqtSlot
 import asyncio
+import logging
+
+from app.adapters.discovery_adapter import DiscoveryAdapter
+from app.core.config import is_demo_mode
+from app.models.host import HostRecord
+
+logger = logging.getLogger("NEDScanner.ui.discovery")
+
 
 class DiscoveryTab(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
         self.scanning = False
+        self._adapter = DiscoveryAdapter()
         
     def init_ui(self):
         # Layout principal
@@ -159,43 +168,51 @@ class DiscoveryTab(QWidget):
         self.export_button.setEnabled(False)
         self.nmap_scan_button.setEnabled(False)
         
-        # Simular escaneo (esto se reemplazará con el adaptador real)
-        QTimer.singleShot(2000, self.on_scan_complete)
-    
-    def on_scan_complete(self):
-        """Callback cuando el descubrimiento se completa"""
-        self.scanning = False
-        self.scan_button.setEnabled(True)
-        self.status_label.setText("Descubrimiento completado")
-        self.progress_bar.setVisible(False)
-        
-        # Simular resultados (esto se reemplazará con datos reales)
-        self.populate_sample_data()
-        
-        # Habilitar botones de acción si hay resultados
-        if self.results_table.rowCount() > 0:
-            self.export_button.setEnabled(True)
-            self.nmap_scan_button.setEnabled(True)
-    
-    def populate_sample_data(self):
-        """Llena la tabla con datos de ejemplo"""
-        # Datos de ejemplo
-        sample_devices = [
-            {"ip": "192.168.1.1", "mac": "AA:BB:CC:DD:EE:FF", "hostname": "router.local", "method": "ARP"},
-            {"ip": "192.168.1.100", "mac": "11:22:33:44:55:66", "hostname": "desktop.local", "method": "ARP, ICMP"},
-            {"ip": "192.168.1.101", "mac": "AA:BB:CC:00:11:22", "hostname": "laptop.local", "method": "mDNS"},
-            {"ip": "192.168.1.102", "mac": "AA:BB:CC:00:22:33", "hostname": "", "method": "TCP SYN"},
-            {"ip": "192.168.1.200", "mac": "00:11:22:33:44:55", "hostname": "printer.local", "method": "LLMNR"}
-        ]
-        
-        for device in sample_devices:
+        asyncio.create_task(self._run_discovery(target))
+
+    async def _run_discovery(self, target: str) -> None:
+        def on_progress(msg: str) -> None:
+            self.status_label.setText(msg)
+
+        try:
+            hosts: list[HostRecord] = await self._adapter.discover(
+                target,
+                use_arp=self.arp_check.isChecked(),
+                use_icmp=self.icmp_check.isChecked(),
+                use_mdns=self.mdns_check.isChecked(),
+                use_llmnr=self.llmnr_check.isChecked(),
+                timeout_s=float(self.timeout_spin.value()),
+                progress=on_progress,
+            )
+            self.populate_hosts(hosts)
+            suffix = " (demo)" if is_demo_mode() else ""
+            self.status_label.setText(f"Descubrimiento completado — {len(hosts)} host(s){suffix}")
+        except ValueError as exc:
+            self.status_label.setText(f"Error: {exc}")
+        except PermissionError:
+            self.status_label.setText(
+                "Error: sin permisos raw — setcap python3 o export NEDSCANNER_DEMO=1"
+            )
+        except Exception as exc:
+            logger.exception("discovery failed")
+            self.status_label.setText(f"Error: {exc}")
+        finally:
+            self.scanning = False
+            self.scan_button.setEnabled(True)
+            self.progress_bar.setVisible(False)
+            if self.results_table.rowCount() > 0:
+                self.export_button.setEnabled(True)
+                self.nmap_scan_button.setEnabled(True)
+
+    def populate_hosts(self, hosts: list[HostRecord]) -> None:
+        self.results_table.setRowCount(0)
+        for host in hosts:
             row = self.results_table.rowCount()
             self.results_table.insertRow(row)
-            
-            self.results_table.setItem(row, 0, QTableWidgetItem(device["ip"]))
-            self.results_table.setItem(row, 1, QTableWidgetItem(device["mac"]))
-            self.results_table.setItem(row, 2, QTableWidgetItem(device["hostname"]))
-            self.results_table.setItem(row, 3, QTableWidgetItem(device["method"]))
+            self.results_table.setItem(row, 0, QTableWidgetItem(host.ip))
+            self.results_table.setItem(row, 1, QTableWidgetItem(host.mac or "—"))
+            self.results_table.setItem(row, 2, QTableWidgetItem(host.hostname or "—"))
+            self.results_table.setItem(row, 3, QTableWidgetItem(host.method_label()))
     
     def scan_with_nmap(self):
         """Envía los dispositivos seleccionados a la pestaña de Nmap"""
