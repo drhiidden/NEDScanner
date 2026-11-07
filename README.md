@@ -22,7 +22,7 @@ NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y vi
 
 Roadmap inspirado en [NetPwn](https://github.com/letox4/netpwn) (solo patrones; licencia MIT): [docs/NETPWN-PARITY-ROADMAP.md](docs/NETPWN-PARITY-ROADMAP.md).
 
-Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.4**).
+Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.5**).
 
 **Seguridad:** [docs/SECURITY-DESIGN.md](docs/SECURITY-DESIGN.md) — validación de objetivos y autorización en UI (Configuración → Seguridad).
 
@@ -30,7 +30,7 @@ Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.4**).
 
 **Inventario de confianza:** `~/.nedscaner/known-devices.json` — dispositivos/redes que *tú* declaras conocidos; el resto aparece como **Desconocido** (naranja) en Descubrimiento/Wi‑Fi.
 
-**Antes de push:** `./scripts/verify-local.sh` (modo demo, sin CI remoto).
+**Antes de push:** `pip install -r requirements-dev.txt` y `./scripts/verify-local.sh` (smoke + 21 pytest).
 
 ## Requisitos
 

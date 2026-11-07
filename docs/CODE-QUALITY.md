@@ -20,7 +20,7 @@ Checklist derivado de **hcp-skills** (público, MIT del proyecto). Sirve para re
 - [x] Autorización UI + `~/.nedscaner/preferences.json`
 - [x] Exportaciones solo bajo `$HOME` (`safe_io.py`)
 - [x] Inventario JSON atómico, permisos restrictivos
-- [ ] Tests unitarios pytest (adaptadores mockeados) — backlog
+- [x] Tests unitarios pytest (`tests/`: `scan_policy`, adaptadores demo, `user_prefs`)
 - [ ] Rotación / nivel log sin PII en producción — backlog
 
 ### Mantenibilidad
@@ -48,7 +48,9 @@ Checklist derivado de **hcp-skills** (público, MIT del proyecto). Sirve para re
 ## Comando de verificación
 
 ```bash
-./scripts/verify-local.sh
+pip install -r requirements-dev.txt   # una vez
+./scripts/verify-local.sh           # incluye pytest -q tests/
+pytest -q tests/                    # solo tests
 ```
 
 ## Próxima pasada recomendada

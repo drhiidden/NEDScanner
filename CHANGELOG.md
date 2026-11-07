@@ -2,6 +2,13 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.5] - 2026-11-07
+
+### Added
+
+- Suite `tests/`: pytest para `scan_policy`, adaptadores en demo, `user_prefs`.
+- `requirements-dev.txt`, `pytest.ini`; `verify-local.sh` ejecuta pytest sin `NEDSCANNER_DEMO`.
+
 ## [1.0.4] - 2026-11-07
 
 ### Added

@@ -86,4 +86,16 @@ else:
 print("policy-ok")
 PY
 
+echo "== pytest =="
+if ! "$PY" -c "import pytest" 2>/dev/null; then
+  echo "pytest no instalado — pip install -r requirements-dev.txt" >&2
+  exit 1
+fi
+env -u NEDSCANNER_DEMO "$PY" - <<'PY'
+from app.core import config
+config.is_demo_mode.cache_clear()
+import pytest
+raise SystemExit(pytest.main(["-q", "tests/"]))
+PY
+
 echo "verify-local: OK"
