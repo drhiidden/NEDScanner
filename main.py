@@ -44,50 +44,41 @@ def load_stylesheet(app):
         logger.error(f"Error al cargar los estilos: {e}")
         return False
 
-async def main():
-    """
-    Función principal que inicia la aplicación NEDScaner.
-    Configura el bucle de eventos asíncrono y muestra la ventana principal.
-    """
-    logger.info("Iniciando NEDScaner...")
-    
-    # Crear la aplicación Qt
-    app = QAsyncApplication(sys.argv)
-    app.setApplicationName("NEDScaner")
-    app.setOrganizationName("NEDScaner")
-    
-    # Aplicar estilos
-    load_stylesheet(app)
-    
-    # Configurar el bucle de eventos
-    loop = QEventLoop(app)
-    asyncio.set_event_loop(loop)
-    
-    # Crear y mostrar la ventana principal
-    main_window = MainWindow()
-    main_window.show()
-
+async def _show_demo_notice(main_window: MainWindow) -> None:
     if is_demo_mode():
         QMessageBox.information(
             main_window,
             "Modo demo",
             "NEDSCANNER_DEMO activo: descubrimiento usa red ficticia (sin raw sockets).",
         )
-    
     logger.info("Interfaz de usuario inicializada (demo=%s)", is_demo_mode())
-    
-    # Ejecutar el bucle de eventos
-    try:
-        await loop.run_forever()
-    except Exception as e:
-        logger.error(f"Error en el bucle de eventos: {e}")
-    finally:
-        logger.info("Cerrando NEDScaner")
+
+
+def main() -> int:
+    logger.info("Iniciando NEDScaner...")
+
+    app = QAsyncApplication(sys.argv)
+    app.setApplicationName("NEDScaner")
+    app.setOrganizationName("NEDScaner")
+
+    load_stylesheet(app)
+
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
+    main_window = MainWindow()
+    main_window.show()
+
+    with loop:
+        loop.run_until_complete(_show_demo_notice(main_window))
+        return loop.run_forever()
+
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        raise SystemExit(main())
     except KeyboardInterrupt:
         logger.info("Aplicación interrumpida por el usuario")
     except Exception as e:
         logger.error(f"Error fatal: {e}", exc_info=True)
+        raise SystemExit(1)

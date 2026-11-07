@@ -1,14 +1,19 @@
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
-                             QTextEdit, QTableWidget, QTableWidgetItem, QLabel, 
+import json
+from pathlib import Path
+
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
+                             QTextEdit, QTableWidget, QTableWidgetItem, QLabel,
                              QProgressBar, QGroupBox, QHeaderView, QComboBox,
-                             QCheckBox, QSpinBox, QFormLayout, QLineEdit, 
-                             QRadioButton, QButtonGroup, QGridLayout)
-from PyQt6.QtCore import Qt, pyqtSlot
-import asyncio
+                             QCheckBox, QSpinBox, QFormLayout, QLineEdit,
+                             QRadioButton, QButtonGroup, QGridLayout, QFileDialog)
+from PyQt6.QtCore import Qt
 import logging
+
+from qasync import asyncSlot
 
 from app.adapters.discovery_adapter import DiscoveryAdapter
 from app.core.config import is_demo_mode
+from app.core.scan_history import ScanRecord, append_record
 from app.models.host import HostRecord
 
 logger = logging.getLogger("NEDScanner.ui.discovery")
@@ -20,6 +25,7 @@ class DiscoveryTab(QWidget):
         self.init_ui()
         self.scanning = False
         self._adapter = DiscoveryAdapter()
+        self._last_hosts: list[HostRecord] = []
         
     def init_ui(self):
         # Layout principal
@@ -110,6 +116,7 @@ class DiscoveryTab(QWidget):
         
         self.export_button = QPushButton("Exportar Resultados")
         self.export_button.setEnabled(False)
+        self.export_button.clicked.connect(self.export_results)
         
         self.nmap_scan_button = QPushButton("Escanear con Nmap")
         self.nmap_scan_button.setEnabled(False)
@@ -134,18 +141,17 @@ class DiscoveryTab(QWidget):
         
         main_layout.addLayout(status_layout)
     
-    @pyqtSlot()
-    def start_scan(self):
+    @asyncSlot()
+    async def start_scan(self):
         """Inicia el proceso de descubrimiento rápido"""
         if self.scanning:
             return
-            
+
         target = self.target_input.text().strip()
         if not target:
             self.status_label.setText("Error: Especifique un objetivo para el descubrimiento")
             return
-        
-        # Verificar que al menos un método esté seleccionado
+
         if not any([
             self.arp_check.isChecked(),
             self.icmp_check.isChecked(),
@@ -156,19 +162,18 @@ class DiscoveryTab(QWidget):
         ]):
             self.status_label.setText("Error: Seleccione al menos un método de descubrimiento")
             return
-            
+
         self.scanning = True
         self.scan_button.setEnabled(False)
         self.status_label.setText(f"Descubriendo dispositivos en {target}...")
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)  # Modo indeterminado
-        
-        # Limpiar resultados anteriores
+        self.progress_bar.setRange(0, 0)
+
         self.results_table.setRowCount(0)
         self.export_button.setEnabled(False)
         self.nmap_scan_button.setEnabled(False)
-        
-        asyncio.create_task(self._run_discovery(target))
+
+        await self._run_discovery(target)
 
     async def _run_discovery(self, target: str) -> None:
         def on_progress(msg: str) -> None:
@@ -184,7 +189,25 @@ class DiscoveryTab(QWidget):
                 timeout_s=float(self.timeout_spin.value()),
                 progress=on_progress,
             )
+            self._last_hosts = hosts
             self.populate_hosts(hosts)
+            append_record(
+                ScanRecord(
+                    kind="discovery",
+                    target=target,
+                    summary=f"{len(hosts)} hosts",
+                    payload=[
+                        {
+                            "ip": h.ip,
+                            "mac": h.mac,
+                            "hostname": h.hostname,
+                            "methods": h.methods,
+                            "demo": h.demo,
+                        }
+                        for h in hosts
+                    ],
+                )
+            )
             suffix = " (demo)" if is_demo_mode() else ""
             self.status_label.setText(f"Descubrimiento completado — {len(hosts)} host(s){suffix}")
         except ValueError as exc:
@@ -214,24 +237,46 @@ class DiscoveryTab(QWidget):
             self.results_table.setItem(row, 2, QTableWidgetItem(host.hostname or "—"))
             self.results_table.setItem(row, 3, QTableWidgetItem(host.method_label()))
     
-    def scan_with_nmap(self):
-        """Envía los dispositivos seleccionados a la pestaña de Nmap"""
-        # Aquí se implementaría la lógica para pasar los dispositivos seleccionados
-        # a la pestaña de Nmap para un escaneo más detallado
-        selected_items = self.results_table.selectedItems()
-        if not selected_items:
+    def export_results(self) -> None:
+        if not self._last_hosts:
             return
-            
-        # Obtener las filas seleccionadas (únicas)
-        selected_rows = set()
-        for item in selected_items:
-            selected_rows.add(self.results_table.row(item))
-            
-        # Obtener las IPs de las filas seleccionadas
-        selected_ips = []
-        for row in selected_rows:
-            ip = self.results_table.item(row, 0).text()
-            selected_ips.append(ip)
-            
-        # Mostrar mensaje de depuración (en producción, esto pasaría los datos a la pestaña Nmap)
-        self.status_label.setText(f"Enviando a Nmap: {', '.join(selected_ips)}")
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Exportar descubrimiento",
+            str(Path.home() / "nedscanner-discovery.json"),
+            "JSON (*.json)",
+        )
+        if not path:
+            return
+        payload = {
+            "demo": is_demo_mode(),
+            "hosts": [
+                {
+                    "ip": h.ip,
+                    "mac": h.mac,
+                    "hostname": h.hostname,
+                    "methods": h.methods,
+                }
+                for h in self._last_hosts
+            ],
+        }
+        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        self.status_label.setText(f"Exportado: {path}")
+
+    def scan_with_nmap(self):
+        selected_items = self.results_table.selectedItems()
+        if selected_items:
+            rows = {self.results_table.row(i) for i in selected_items}
+            ips = [self.results_table.item(r, 0).text() for r in rows]
+        else:
+            ips = [h.ip for h in self._last_hosts]
+
+        if not ips:
+            self.status_label.setText("Sin hosts para Nmap")
+            return
+
+        window = self.window()
+        if hasattr(window, "handoff_to_nmap"):
+            window.handoff_to_nmap(ips)  # type: ignore[attr-defined]
+        else:
+            self.status_label.setText(f"IPs: {', '.join(ips)}")
