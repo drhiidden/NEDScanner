@@ -17,8 +17,8 @@ No se copia código de NetPwn en este repo. Solo se reimplementan **patrones** (
 |------|--------|----------------|
 | Discovery ARP | ✅ | ✅ v1.0 adapter (`discovery_adapter.py`) |
 | Modo demo sin root | ✅ `--demo` | ✅ `NEDSCANNER_DEMO=1` / `--demo` |
-| Wi-Fi escaneo | ✅ avanzado | 🟡 UI stub |
-| Nmap / puertos | ✅ | 🟡 UI stub |
+| Wi-Fi escaneo | ✅ avanzado | 🟡 v1.0.1 nmcli + demo; real sin root pendiente |
+| Nmap / puertos | ✅ | 🟡 v1.0.1 python-nmap + demo; persistencia v1.2 |
 | Topología grafo | ✅ | ❌ roadmap v1.2 |
 | MITM / creds / poison | ✅ ofensivo | ❌ **fuera de alcance MIT** (o producto GPL aparte) |
 | PÁNICO / iptables etiquetados | ✅ | ❌ solo si añadimos módulos que toquen fw |
@@ -32,11 +32,16 @@ No se copia código de NetPwn en este repo. Solo se reimplementan **patrones** (
 - Modo demo para WSL/CI sin capabilities
 - DISCLAIMER explícito en README
 
+### v1.0.1 (entregado 2026-11-07)
+
+- Wi‑Fi vía `nmcli_adapter` (real o demo)
+- Nmap vía `python-nmap` / demo + handoff desde descubrimiento
+- Export JSON de descubrimiento; `verify-local.sh`
+
 ### v1.1
 
-- Wi-Fi vía `nmcli_adapter` (ya existe esqueleto)
-- Nmap vía `python-nmap` en worker thread + resultados en tabla
-- Export JSON de escaneos
+- Wi‑Fi real estable en Linux sin demo; resultados persistentes en disco
+- Topología / comparación de escaneos
 
 ### v1.2
 
