@@ -12,6 +12,7 @@ import re
 from ipaddress import ip_address, ip_network
 
 from app.core.config import is_demo_mode
+from app.core.user_prefs import is_allow_public_scan, is_scan_authorized
 
 # Mínimo /20 → máximo ~4096 direcciones por CIDR
 _MIN_PREFIXLEN = 20
@@ -36,18 +37,18 @@ def require_scan_authorization() -> None:
     """Escaneo real (no demo) exige reconocimiento explícito de autorización."""
     if is_demo_mode():
         return
-    if os.environ.get("NEDSCANNER_I_ACK_AUTHORIZED") == "1":
+    if is_scan_authorized():
         return
     raise PermissionError(
-        "Escaneo en red real bloqueado: confirma autorización con "
-        "export NEDSCANNER_I_ACK_AUTHORIZED=1 (solo redes propias o con permiso escrito)."
+        "Escaneo en red real bloqueado: activa la autorización en "
+        "Configuración → Seguridad o confirma en el diálogo al escanear."
     )
 
 
 def _assert_private_or_allowed(net: ip_network) -> None:
     if is_demo_mode():
         return
-    if os.environ.get("NEDSCANNER_ALLOW_PUBLIC") == "1":
+    if is_allow_public_scan():
         return
     if any(net.subnet_of(p) or net == p for p in _PRIVATE_V4):
         return
@@ -86,7 +87,7 @@ def validate_ipv4_address(ip: str) -> str:
         raise ScanPolicyError(f"IP inválida: {exc}") from exc
     if addr.version != 4:
         raise ScanPolicyError("Solo IPv4")
-    if not is_demo_mode() and os.environ.get("NEDSCANNER_ALLOW_PUBLIC") != "1":
+    if not is_demo_mode() and not is_allow_public_scan():
         private = any(addr in p for p in _PRIVATE_V4)
         if not private:
             raise ScanPolicyError("IP fuera de rangos privados/locales")

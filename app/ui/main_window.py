@@ -8,6 +8,8 @@ from app.ui.discovery_tab import DiscoveryTab
 from app.ui.results_tab import ResultsTab
 from app.ui.settings_tab import SettingsTab
 from app.ui.icon_provider import IconProvider
+from app.core.config import is_demo_mode
+from app.core.user_prefs import is_scan_authorized
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -104,6 +106,7 @@ class MainWindow(QMainWindow):
         
         # Inicializar pestañas
         self.init_tabs()
+        self.refresh_security_status()
         
     def init_tabs(self):
         """
@@ -167,6 +170,14 @@ class MainWindow(QMainWindow):
         """Muestra información sobre la aplicación"""
         # Aquí se implementaría un diálogo de "Acerca de"
         self.status_bar.showMessage("NEDScaner - Aplicación para detección y visualización de redes Linux")
+
+    def refresh_security_status(self) -> None:
+        if is_demo_mode():
+            self.status_bar.showMessage("Modo demo — sin escaneo real en red")
+        elif is_scan_authorized():
+            self.status_bar.showMessage("Escaneo autorizado — solo redes con permiso")
+        else:
+            self.status_bar.showMessage("Escaneo real bloqueado hasta confirmar autorización")
 
     def handoff_to_nmap(self, ips: list[str]) -> None:
         """Desde descubrimiento → pestaña Nmap con objetivo prefijado."""

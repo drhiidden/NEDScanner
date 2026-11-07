@@ -2,6 +2,19 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.4] - 2026-11-07
+
+### Added
+
+- Diálogo de autorización al iniciar escaneo real; preferencias en `~/.nedscaner/preferences.json`.
+- Configuración → Seguridad: checkboxes autorización y alcance público.
+- Barra de estado con modo demo / autorizado / bloqueado.
+- [docs/CODE-QUALITY.md](docs/CODE-QUALITY.md) (hcp-skills: review, verification, mantenibilidad).
+
+### Changed
+
+- `user_prefs` desacopla Qt de `scan_policy`; estilo confianza en `trust_style.py`.
+
 ## [1.0.3] - 2026-11-07
 
 ### Security

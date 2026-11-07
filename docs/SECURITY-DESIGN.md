@@ -9,7 +9,7 @@
 | Fail-closed en entradas | `app/core/scan_policy.py` | `verification/ai-output-verification` |
 | Sin shell injection | `subprocess_exec` con argv fijos (`nmcli`); Nmap vía API, objetivo validado | `10-security/secure-bash-scripting` |
 | Alcance mínimo | CIDR máx `/20`, redes privadas por defecto | `red-team-auditor` (SSRF/lateral) |
-| Autorización explícita | `NEDSCANNER_I_ACK_AUTHORIZED=1` antes de escaneo real | Uso responsable + `DISCLAIMER.md` |
+| Autorización explícita | Diálogo UI + `~/.nedscaner/preferences.json` o env `NEDSCANNER_I_ACK_AUTHORIZED=1` | Uso responsable + `DISCLAIMER.md` |
 | Datos locales protegidos | `safe_io.atomic_write_json`, permisos `0600` en `~/.nedscaner/` | `ide-security-auditor` (credenciales en disco) |
 | OPSEC en repo | `scripts/verify-local.sh` | `git/oss-safe-publish` |
 
@@ -18,7 +18,7 @@
 | Variable | Efecto |
 |----------|--------|
 | `NEDSCANNER_DEMO=1` | Sin sockets raw; datos ficticios; política de red relajada |
-| `NEDSCANNER_I_ACK_AUTHORIZED=1` | **Obligatoria** para escaneo real (no demo) |
+| `NEDSCANNER_I_ACK_AUTHORIZED=1` | Atajo env; equivalente al checkbox en Configuración → Seguridad |
 | `NEDSCANNER_ALLOW_PUBLIC=1` | Permite objetivos fuera de RFC1918/link-local (requiere permiso legal) |
 
 ## Superficie de ataque

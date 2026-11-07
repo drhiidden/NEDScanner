@@ -213,6 +213,35 @@ O ejecute la aplicación con sudo (no recomendado).
         
         perms_group.setLayout(perms_layout)
         security_layout.addWidget(perms_group)
+
+        from app.core.user_prefs import (
+            is_allow_public_scan,
+            is_scan_authorized,
+            set_allow_public_scan,
+            set_scan_authorized,
+        )
+
+        auth_group = QGroupBox("Autorización de escaneo en red real")
+        auth_layout = QVBoxLayout()
+        self.scan_authorized_check = QCheckBox(
+            "Declaro permiso para escanear solo redes autorizadas (equivale a NEDSCANNER_I_ACK_AUTHORIZED)"
+        )
+        self.scan_authorized_check.setChecked(is_scan_authorized())
+        self.allow_public_check = QCheckBox(
+            "Permitir objetivos fuera de LAN privada (requiere permiso legal explícito)"
+        )
+        self.allow_public_check.setChecked(is_allow_public_scan())
+        auth_layout.addWidget(self.scan_authorized_check)
+        auth_layout.addWidget(self.allow_public_check)
+        auth_hint = QLabel(
+            "Se guarda en ~/.nedscaner/preferences.json. En modo demo no aplica."
+        )
+        auth_hint.setWordWrap(True)
+        auth_layout.addWidget(auth_hint)
+        auth_group.setLayout(auth_layout)
+        security_layout.addWidget(auth_group)
+        self._persist_scan_auth = set_scan_authorized
+        self._persist_allow_public = set_allow_public_scan
         
         # Grupo: Almacenamiento de credenciales
         creds_group = QGroupBox("Almacenamiento de Credenciales")
@@ -624,7 +653,12 @@ O ejecute la aplicación con sudo (no recomendado).
     
     def apply_settings(self):
         """Aplica los cambios de configuración"""
-        # Aquí iría la lógica para guardar la configuración
+        if hasattr(self, "scan_authorized_check"):
+            self._persist_scan_auth(self.scan_authorized_check.isChecked())
+            self._persist_allow_public(self.allow_public_check.isChecked())
+        window = self.window()
+        if hasattr(window, "refresh_security_status"):
+            window.refresh_security_status()  # type: ignore[attr-defined]
         QMessageBox.information(
             self, "Aplicar Configuración",
             "La configuración ha sido aplicada correctamente."

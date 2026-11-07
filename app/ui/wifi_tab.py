@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
 import time
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
 from qasync import asyncSlot
 
 from app.adapters.nmcli_adapter import WifiScanAdapter
@@ -13,6 +12,8 @@ from app.core.config import is_demo_mode
 from app.core.known_inventory import wifi_trust_label
 from app.core.scan_history import ScanRecord, append_record
 from app.models.wifi_network import WifiNetwork
+from app.ui.scan_authorization import ensure_scan_authorized
+from app.ui.trust_style import highlight_row_if_unknown
 
 
 class WifiTab(QWidget):
@@ -115,6 +116,10 @@ class WifiTab(QWidget):
         if self.scanning:
             return
 
+        if not ensure_scan_authorized(self):
+            self.status_label.setText("Escaneo cancelado: falta autorización")
+            return
+
         self.scanning = True
         self.scan_button.setEnabled(False)
         self.status_label.setText("Escaneando redes Wi-Fi...")
@@ -157,10 +162,12 @@ class WifiTab(QWidget):
             self.networks_table.setItem(row, 3, QTableWidgetItem(f"{network.signal_dbm} dBm"))
             self.networks_table.setItem(row, 4, QTableWidgetItem(network.security))
             self.networks_table.item(row, 0).setData(Qt.ItemDataRole.UserRole, network)
-            if wifi_trust_label(network.ssid, network.bssid) == "Desconocida":
-                tint = QColor(255, 140, 60)
-                for col in range(5):
-                    self.networks_table.item(row, col).setBackground(tint)
+            highlight_row_if_unknown(
+                self.networks_table,
+                row,
+                unknown=wifi_trust_label(network.ssid, network.bssid) == "Desconocida",
+                columns=5,
+            )
     
     def on_network_selected(self):
         """Maneja la selección de una red en la tabla"""

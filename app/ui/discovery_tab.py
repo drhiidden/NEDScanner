@@ -7,7 +7,6 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QCheckBox, QSpinBox, QFormLayout, QLineEdit,
                              QRadioButton, QButtonGroup, QGridLayout, QFileDialog)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
 import logging
 
 from qasync import asyncSlot
@@ -18,6 +17,8 @@ from app.core.safe_io import safe_export_path
 from app.core.known_inventory import add_known_host, host_trust_label
 from app.core.scan_history import ScanRecord, append_record
 from app.models.host import HostRecord
+from app.ui.scan_authorization import ensure_scan_authorized
+from app.ui.trust_style import highlight_row_if_unknown
 
 logger = logging.getLogger("NEDScanner.ui.discovery")
 
@@ -160,6 +161,10 @@ class DiscoveryTab(QWidget):
             self.status_label.setText("Error: Especifique un objetivo para el descubrimiento")
             return
 
+        if not ensure_scan_authorized(self):
+            self.status_label.setText("Escaneo cancelado: falta autorización")
+            return
+
         if not any([
             self.arp_check.isChecked(),
             self.icmp_check.isChecked(),
@@ -223,7 +228,7 @@ class DiscoveryTab(QWidget):
             self.status_label.setText(f"Descubrimiento completado — {len(hosts)} host(s){suffix}")
         except PermissionError as exc:
             msg = str(exc)
-            if "NEDSCANNER_I_ACK_AUTHORIZED" in msg:
+            if "bloqueado" in msg.lower() or "autorización" in msg.lower():
                 self.status_label.setText(msg)
             else:
                 self.status_label.setText(
@@ -256,13 +261,10 @@ class DiscoveryTab(QWidget):
             self.results_table.setItem(row, 2, QTableWidgetItem(host.hostname or "—"))
             self.results_table.setItem(row, 3, QTableWidgetItem(host.method_label()))
             state_item = QTableWidgetItem(trust)
-            if trust == "Desconocido":
-                orange = QColor(255, 140, 60)
-                for col in range(5):
-                    item = self.results_table.item(row, col)
-                    if item:
-                        item.setBackground(orange)
             self.results_table.setItem(row, 4, state_item)
+            highlight_row_if_unknown(
+                self.results_table, row, unknown=(trust == "Desconocido"), columns=5
+            )
         self.trust_button.setEnabled(len(hosts) > 0)
         if unknown_count:
             self.status_label.setText(

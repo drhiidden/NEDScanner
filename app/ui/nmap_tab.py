@@ -8,6 +8,7 @@ from qasync import asyncSlot
 
 from app.adapters.nmap_adapter import NmapScanAdapter
 from app.core.config import is_demo_mode
+from app.ui.scan_authorization import ensure_scan_authorized
 from app.core.scan_history import ScanRecord, append_record
 from app.models.nmap_host import NmapHost
 
@@ -132,6 +133,10 @@ class NmapTab(QWidget):
         target = self.target_input.text().strip()
         if not target:
             self.status_label.setText("Error: Especifique un objetivo para el escaneo")
+            return
+
+        if not ensure_scan_authorized(self):
+            self.status_label.setText("Escaneo cancelado: falta autorización")
             return
 
         self.scanning = True
