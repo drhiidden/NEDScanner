@@ -2,6 +2,15 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.3] - 2026-11-07
+
+### Security
+
+- `scan_policy`: validación CIDR/IP/objetivos Nmap; bloqueo de metacaracteres; redes privadas por defecto.
+- Gate `NEDSCANNER_I_ACK_AUTHORIZED=1` para escaneo real; `NEDSCANNER_ALLOW_PUBLIC=1` opcional.
+- Export JSON solo bajo `$HOME`; inventario con escritura atómica y permisos restrictivos.
+- [docs/SECURITY-DESIGN.md](docs/SECURITY-DESIGN.md) mapeado a skills HCP (`ai-output-verification`, `red-team-auditor`, `secure-bash-scripting`).
+
 ## [1.0.2] - 2026-11-07
 
 ### Added

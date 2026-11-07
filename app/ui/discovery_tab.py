@@ -14,6 +14,7 @@ from qasync import asyncSlot
 
 from app.adapters.discovery_adapter import DiscoveryAdapter
 from app.core.config import is_demo_mode
+from app.core.safe_io import safe_export_path
 from app.core.known_inventory import add_known_host, host_trust_label
 from app.core.scan_history import ScanRecord, append_record
 from app.models.host import HostRecord
@@ -220,12 +221,16 @@ class DiscoveryTab(QWidget):
                 window.notify_scan_recorded()  # type: ignore[attr-defined]
             suffix = " (demo)" if is_demo_mode() else ""
             self.status_label.setText(f"Descubrimiento completado — {len(hosts)} host(s){suffix}")
+        except PermissionError as exc:
+            msg = str(exc)
+            if "NEDSCANNER_I_ACK_AUTHORIZED" in msg:
+                self.status_label.setText(msg)
+            else:
+                self.status_label.setText(
+                    "Error: sin permisos raw — setcap python3 o export NEDSCANNER_DEMO=1"
+                )
         except ValueError as exc:
             self.status_label.setText(f"Error: {exc}")
-        except PermissionError:
-            self.status_label.setText(
-                "Error: sin permisos raw — setcap python3 o export NEDSCANNER_DEMO=1"
-            )
         except Exception as exc:
             logger.exception("discovery failed")
             self.status_label.setText(f"Error: {exc}")
@@ -292,6 +297,11 @@ class DiscoveryTab(QWidget):
         )
         if not path:
             return
+        try:
+            out = safe_export_path(path)
+        except ValueError as exc:
+            self.status_label.setText(str(exc))
+            return
         payload = {
             "demo": is_demo_mode(),
             "hosts": [
@@ -304,8 +314,8 @@ class DiscoveryTab(QWidget):
                 for h in self._last_hosts
             ],
         }
-        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        self.status_label.setText(f"Exportado: {path}")
+        out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        self.status_label.setText(f"Exportado: {out}")
 
     def scan_with_nmap(self):
         selected_items = self.results_table.selectedItems()

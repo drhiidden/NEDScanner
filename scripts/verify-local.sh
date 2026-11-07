@@ -51,4 +51,39 @@ with tempfile.TemporaryDirectory() as td:
 print("inventory-ok")
 PY
 
+echo "== scan policy =="
+"$PY" - <<'PY'
+import os
+os.environ["NEDSCANNER_DEMO"] = "1"
+from app.core.scan_policy import (
+    ScanPolicyError,
+    validate_ipv4_cidr,
+    validate_nmap_targets,
+)
+assert validate_ipv4_cidr("192.168.99.0/24") == "192.168.99.0/24"
+try:
+    validate_nmap_targets("192.168.1.1;id")
+except ScanPolicyError:
+    pass
+else:
+    raise SystemExit("expected injection block")
+os.environ.pop("NEDSCANNER_DEMO", None)
+from app.core import config
+config.is_demo_mode.cache_clear()
+os.environ["NEDSCANNER_I_ACK_AUTHORIZED"] = "1"
+try:
+    validate_ipv4_cidr("8.8.8.8/24")
+except ScanPolicyError:
+    pass
+else:
+    raise SystemExit("expected private-only block")
+try:
+    validate_nmap_targets("8.8.8.8")
+except ScanPolicyError:
+    pass
+else:
+    raise SystemExit("expected block public ip")
+print("policy-ok")
+PY
+
 echo "verify-local: OK"

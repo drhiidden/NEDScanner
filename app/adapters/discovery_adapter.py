@@ -1,21 +1,16 @@
 import asyncio
 import logging
-import re
 import socket
 from concurrent.futures import ThreadPoolExecutor
 from ipaddress import ip_network
 from typing import Callable, Optional
 
 from app.core.config import is_demo_mode
+from app.core.scan_policy import validate_ipv4_cidr
 from app.core.demo_data import DEMO_CIDR, DEMO_HOSTS
 from app.models.host import HostRecord
 
 logger = logging.getLogger("NEDScanner.discovery")
-
-_CIDR_RE = re.compile(
-    r"^(?:\d{1,3}\.){3}\d{1,3}/\d{1,2}$"
-)
-
 
 class DiscoveryAdapter:
     """Descubrimiento pasivo/activo ligero. Sin MITM ni credenciales (alcance NEDScanner MIT)."""
@@ -43,9 +38,7 @@ class DiscoveryAdapter:
             await asyncio.sleep(0.8)
             return list(DEMO_HOSTS)
 
-        normalized = target.strip() or DEMO_CIDR
-        if not _CIDR_RE.match(normalized):
-            raise ValueError("Objetivo debe ser un CIDR IPv4 (ej. 192.168.1.0/24)")
+        normalized = validate_ipv4_cidr(target.strip() or DEMO_CIDR)
 
         if progress:
             progress(f"Descubriendo {normalized}…")

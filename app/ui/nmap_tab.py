@@ -185,6 +185,10 @@ class NmapTab(QWidget):
             window = self.window()
             if hasattr(window, "notify_scan_recorded"):
                 window.notify_scan_recorded()  # type: ignore[attr-defined]
+        except PermissionError as exc:
+            self.status_label.setText(str(exc))
+        except ValueError as exc:
+            self.status_label.setText(f"Error Nmap: {exc}")
         except Exception as exc:
             self.status_label.setText(f"Error Nmap: {exc}")
         finally:

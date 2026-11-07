@@ -4,6 +4,7 @@ import shutil
 from typing import Optional
 
 from app.core.config import is_demo_mode
+from app.core.scan_policy import validate_interface
 from app.core.demo_data import DEMO_WIFI
 from app.models.wifi_network import WifiNetwork
 
@@ -33,9 +34,10 @@ class WifiScanAdapter:
         await self.rescan()
         await asyncio.sleep(1.0)
 
+        iface = validate_interface(interface)
         cmd = ["nmcli", "-t", "-f", "SSID,BSSID,CHAN,SIGNAL,SECURITY", "device", "wifi", "list"]
-        if interface:
-            cmd.extend(["ifname", interface])
+        if iface:
+            cmd.extend(["ifname", iface])
 
         proc = await asyncio.create_subprocess_exec(
             *cmd,

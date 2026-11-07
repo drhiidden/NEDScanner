@@ -4,6 +4,7 @@ import shutil
 from concurrent.futures import ThreadPoolExecutor
 
 from app.core.config import is_demo_mode
+from app.core.scan_policy import validate_nmap_targets
 from app.core.demo_data import DEMO_NMAP
 from app.models.nmap_host import NmapHost, NmapPort
 
@@ -31,10 +32,11 @@ class NmapScanAdapter:
         service_version: bool = False,
         os_detection: bool = False,
     ) -> list[NmapHost]:
+        safe_target = validate_nmap_targets(target)
         if is_demo_mode():
             await asyncio.sleep(0.8)
-            if target.strip():
-                return [h for h in DEMO_NMAP if h.ip in target or target in h.ip]
+            if safe_target.strip():
+                return [h for h in DEMO_NMAP if h.ip in safe_target or safe_target in h.ip]
             return list(DEMO_NMAP)
 
         if not shutil.which("nmap"):
@@ -43,7 +45,7 @@ class NmapScanAdapter:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             self._pool,
-            lambda: self._scan_sync(target, profile_index, service_version, os_detection),
+            lambda: self._scan_sync(safe_target, profile_index, service_version, os_detection),
         )
 
     def _scan_sync(
@@ -55,7 +57,9 @@ class NmapScanAdapter:
     ) -> list[NmapHost]:
         import nmap  # lazy
 
-        arguments = _PROFILES.get(profile_index, "-F")
+        if profile_index not in _PROFILES:
+            profile_index = 1
+        arguments = _PROFILES[profile_index]
         if service_version:
             arguments += " -sV"
         if os_detection:

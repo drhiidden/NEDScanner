@@ -24,6 +24,7 @@ from PyQt6.QtWidgets import (
 )
 
 from app.core.known_inventory import is_host_known, unknown_hosts_from_payload
+from app.core.safe_io import safe_export_path
 from app.core.scan_history import ScanRecord, delete_record, get_record, list_records
 
 _KIND_LABEL = {
@@ -282,6 +283,11 @@ class ResultsTab(QWidget):
         )
         if not path:
             return
+        try:
+            dest = safe_export_path(path)
+        except ValueError as exc:
+            self.preview_text.append(f"\nExportación rechazada: {exc}")
+            return
         blob = {
             "id": rec.id,
             "kind": rec.kind,
@@ -290,8 +296,8 @@ class ResultsTab(QWidget):
             "at": rec.at.isoformat(),
             "payload": rec.payload,
         }
-        Path(path).write_text(json.dumps(blob, indent=2, ensure_ascii=False), encoding="utf-8")
-        self.preview_text.append(f"\nExportado: {path}")
+        dest.write_text(json.dumps(blob, indent=2, ensure_ascii=False), encoding="utf-8")
+        self.preview_text.append(f"\nExportado: {dest}")
 
     def delete_scan(self):
         rid = self._selected_record_id()

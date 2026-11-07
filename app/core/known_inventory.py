@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from app.core.paths import known_devices_path
+from app.core.safe_io import atomic_write_json
+from app.core.scan_policy import ScanPolicyError, validate_inventory_ip
 
 _SCHEMA_VERSION = 1
 
@@ -43,9 +45,12 @@ def load_inventory(path: Path | None = None) -> dict[str, Any]:
 
 def save_inventory(data: dict[str, Any], path: Path | None = None) -> None:
     p = path or known_devices_path()
-    p.parent.mkdir(parents=True, exist_ok=True)
     data["version"] = _SCHEMA_VERSION
-    p.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    if path is None:
+        atomic_write_json(p, data)
+    else:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def is_host_known(
@@ -104,8 +109,12 @@ def add_known_host(
     path: Path | None = None,
 ) -> None:
     data = load_inventory(path)
+    try:
+        ip_norm = validate_inventory_ip(ip)
+    except ScanPolicyError as exc:
+        raise ValueError(str(exc)) from exc
     entry = {
-        "ip": ip.strip(),
+        "ip": ip_norm,
         "mac": _normalize_mac(mac) or (mac or "").strip(),
         "hostname": (hostname or "").strip(),
         "label": (label or "").strip(),
@@ -126,9 +135,14 @@ def add_known_network(
     data = load_inventory(path)
     if is_wifi_known(ssid, bssid, path=path):
         return
+    ssid_clean = ssid.strip()
+    if not ssid_clean or len(ssid_clean) > 32 or ";" in ssid_clean or "\n" in ssid_clean:
+        raise ValueError("SSID inválido")
+    if bssid:
+        _normalize_mac(bssid)
     data["networks"].append(
         {
-            "ssid": ssid.strip(),
+            "ssid": ssid_clean,
             "bssid": _normalize_mac(bssid) or (bssid or "").strip(),
             "label": (label or "").strip(),
         }
