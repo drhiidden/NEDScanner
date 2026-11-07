@@ -28,7 +28,7 @@ Checklist derivado de **hcp-skills** (público, MIT del proyecto). Sirve para re
 - [x] Capa `core/` sin PyQt (adaptadores + política + prefs)
 - [x] Estilo confianza compartido (`trust_style.py`)
 - [x] Diálogo de autorización aislado (`scan_authorization.py`)
-- [ ] Reducir tamaño de `settings_tab.py` (widgets por pestaña) — backlog
+- [x] Configuración modular en `app/ui/settings/*` (orquestador fino en `settings_tab.py`)
 - [ ] Tipos `Protocol` para adaptadores — backlog
 
 ### Robustez
@@ -36,7 +36,7 @@ Checklist derivado de **hcp-skills** (público, MIT del proyecto). Sirve para re
 - [x] Errores de política → mensaje en UI (no crash silencioso)
 - [x] Demo cache invalidable en tests (`config.is_demo_mode.cache_clear`)
 - [x] Límites ICMP (/24, 64 hosts) y CIDR mínimo /20
-- [ ] Timeout global por escaneo Nmap — backlog
+- [x] Timeout global por escaneo Nmap (`nmap_adapter` + preferencias)
 - [ ] Cierre ordenado de `ThreadPoolExecutor` al salir — backlog
 
 ### Legibilidad
@@ -57,4 +57,4 @@ pytest -q tests/                    # solo tests
 
 1. `@skill backend/code-review-enterprise` sobre diff completo v1.0.2→HEAD  
 2. `@skill verification/ai-output-verification` tras cada feature UI  
-3. Extraer pestañas de `settings_tab` a `app/ui/settings/` cuando supere ~400 líneas útiles
+3. Tipado `Protocol` en adaptadores y cierre explícito de executors al salir (v1.0.7)

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 import pytest
 
 from app.adapters.discovery_adapter import DiscoveryAdapter
@@ -50,5 +52,32 @@ async def test_discovery_rejects_bad_cidr_when_not_demo(authorized_env, prefs_tm
     try:
         with pytest.raises((ScanPolicyError, ValueError)):
             await adapter.discover("not-a-network", use_arp=True)
+    finally:
+        adapter.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_nmap_scan_respects_timeout(authorized_env, prefs_tmp, monkeypatch):
+    import shutil
+
+    from app.core import config
+
+    config.is_demo_mode.cache_clear()
+    monkeypatch.setattr(config, "is_demo_mode", lambda: False)
+    monkeypatch.setattr(
+        "app.adapters.nmap_adapter.get_nmap_scan_timeout_s", lambda: 1
+    )
+    monkeypatch.setattr(shutil, "which", lambda _: "/usr/bin/fake-nmap")
+
+    adapter = NmapScanAdapter()
+
+    def _slow_sync(*_args, **_kwargs):
+        time.sleep(3)
+        return []
+
+    monkeypatch.setattr(adapter, "_scan_sync", _slow_sync)
+    try:
+        with pytest.raises(TimeoutError, match="cancelado"):
+            await adapter.scan("192.168.1.1", profile_index=1)
     finally:
         adapter.shutdown()

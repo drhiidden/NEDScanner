@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from app.core.config import is_demo_mode
 from app.core.scan_policy import validate_nmap_targets
+from app.core.user_prefs import get_nmap_scan_timeout_s
 from app.core.demo_data import DEMO_NMAP
 from app.models.nmap_host import NmapHost, NmapPort
 
@@ -43,10 +44,22 @@ class NmapScanAdapter:
             raise RuntimeError("nmap no instalado (sudo apt install nmap)")
 
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(
-            self._pool,
-            lambda: self._scan_sync(safe_target, profile_index, service_version, os_detection),
-        )
+        timeout = get_nmap_scan_timeout_s()
+        try:
+            return await asyncio.wait_for(
+                loop.run_in_executor(
+                    self._pool,
+                    lambda: self._scan_sync(
+                        safe_target, profile_index, service_version, os_detection
+                    ),
+                ),
+                timeout=timeout,
+            )
+        except asyncio.TimeoutError as exc:
+            logger.warning("Nmap excedió timeout (%ss) para %s", timeout, safe_target)
+            raise TimeoutError(
+                f"Escaneo Nmap cancelado tras {timeout}s (ajusta en Configuración → Herramientas)"
+            ) from exc
 
     def _scan_sync(
         self,

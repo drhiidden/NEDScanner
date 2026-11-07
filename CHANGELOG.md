@@ -2,6 +2,17 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.6] - 2026-11-07
+
+### Added
+
+- Timeout global de escaneo Nmap (`asyncio.wait_for`): preferencia `nmap_scan_timeout_s`, override `NEDSCANNER_NMAP_TIMEOUT_S`.
+- Configuración → Herramientas: spinbox de timeout (30–3600 s).
+
+### Changed
+
+- `app/ui/settings_tab.py` orquesta paneles en `app/ui/settings/` (general, herramientas, seguridad, avanzado, inventario).
+
 ## [1.0.5] - 2026-11-07
 
 ### Added

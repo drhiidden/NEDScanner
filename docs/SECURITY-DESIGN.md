@@ -1,6 +1,6 @@
 # Diseño de seguridad — NEDScanner
 
-**Versión:** 1.0.3 · **Licencia:** MIT · **Alcance:** herramienta local de auditoría en red propia.
+**Versión:** 1.0.6 · **Licencia:** MIT · **Alcance:** herramienta local de auditoría en red propia.
 
 ## Principios (alineados con HCP Skills)
 
@@ -20,10 +20,11 @@
 | `NEDSCANNER_DEMO=1` | Sin sockets raw; datos ficticios; política de red relajada |
 | `NEDSCANNER_I_ACK_AUTHORIZED=1` | Atajo env; equivalente al checkbox en Configuración → Seguridad |
 | `NEDSCANNER_ALLOW_PUBLIC=1` | Permite objetivos fuera de RFC1918/link-local (requiere permiso legal) |
+| `NEDSCANNER_NMAP_TIMEOUT_S` | Anula el timeout global Nmap (30–3600 s; por defecto 300) |
 
 ## Superficie de ataque
 
-1. **UI → adaptadores:** todo objetivo pasa por `scan_policy` antes de Scapy/Nmap/nmcli.
+1. **UI → adaptadores:** todo objetivo pasa por `scan_policy` antes de Scapy/Nmap/nmcli; Nmap cancela tras timeout configurable.
 2. **Export JSON:** rutas validadas con `safe_export_path` (solo bajo `$HOME`).
 3. **Inventario:** validación de IP/MAC; JSON atómico con tope de tamaño.
 4. **Logs:** `~/.nedscaner.log` — puede contener IPs; no almacenar credenciales en código.

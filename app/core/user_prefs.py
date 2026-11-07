@@ -13,7 +13,11 @@ _PREFS_FILE = "preferences.json"
 _DEFAULTS: dict[str, Any] = {
     "scan_authorized": False,
     "allow_public_scan": False,
+    "nmap_scan_timeout_s": 300,
 }
+
+_NMAP_TIMEOUT_MIN = 30
+_NMAP_TIMEOUT_MAX = 3600
 
 
 def preferences_path() -> Path:
@@ -36,6 +40,11 @@ def load_preferences() -> dict[str, Any]:
 def save_preferences(data: dict[str, Any]) -> None:
     payload = dict(_DEFAULTS)
     payload.update({k: data.get(k, _DEFAULTS[k]) for k in _DEFAULTS})
+    if isinstance(payload.get("nmap_scan_timeout_s"), int):
+        payload["nmap_scan_timeout_s"] = max(
+            _NMAP_TIMEOUT_MIN,
+            min(_NMAP_TIMEOUT_MAX, int(payload["nmap_scan_timeout_s"])),
+        )
     atomic_write_json(preferences_path(), payload)
 
 
@@ -60,4 +69,24 @@ def is_allow_public_scan() -> bool:
 def set_allow_public_scan(allowed: bool) -> None:
     data = load_preferences()
     data["allow_public_scan"] = allowed
+    save_preferences(data)
+
+
+def get_nmap_scan_timeout_s() -> int:
+    raw = os.environ.get("NEDSCANNER_NMAP_TIMEOUT_S", "").strip()
+    if raw.isdigit():
+        return max(_NMAP_TIMEOUT_MIN, min(_NMAP_TIMEOUT_MAX, int(raw)))
+    pref = load_preferences().get("nmap_scan_timeout_s", _DEFAULTS["nmap_scan_timeout_s"])
+    try:
+        value = int(pref)
+    except (TypeError, ValueError):
+        value = int(_DEFAULTS["nmap_scan_timeout_s"])
+    return max(_NMAP_TIMEOUT_MIN, min(_NMAP_TIMEOUT_MAX, value))
+
+
+def set_nmap_scan_timeout_s(seconds: int) -> None:
+    data = load_preferences()
+    data["nmap_scan_timeout_s"] = max(
+        _NMAP_TIMEOUT_MIN, min(_NMAP_TIMEOUT_MAX, int(seconds))
+    )
     save_preferences(data)
