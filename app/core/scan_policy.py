@@ -7,7 +7,6 @@ Referencias de diseño (HCP public skills, sin copiar lógica GPL):
 """
 from __future__ import annotations
 
-import os
 import re
 from ipaddress import ip_address, ip_network
 
