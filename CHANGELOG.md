@@ -2,6 +2,19 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.2] - 2026-11-07
+
+### Added
+
+- Inventario conocido en `~/.nedscaner/known-devices.json` (hosts LAN + redes Wi‑Fi).
+- Pestaña **Resultados**: historial de sesión real, alertas de desconocidos, export JSON, comparar 2 descubrimientos.
+- **Descubrimiento**: columna Estado, resaltado naranja, «Marcar como conocida».
+- **Configuración → Inventario**: edición manual del allowlist.
+
+### Changed
+
+- Wi‑Fi/Nmap: filas de redes no inventariadas resaltadas; historial Nmap con detalle de puertos.
+
 ## [1.0.1] - 2026-11-07
 
 ### Added

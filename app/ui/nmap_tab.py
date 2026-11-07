@@ -155,14 +155,36 @@ class NmapTab(QWidget):
             self.populate_hosts(hosts)
             suffix = " (demo)" if is_demo_mode() else ""
             self.status_label.setText(f"Escaneo completado — {len(hosts)} host(s){suffix}")
+            payload = []
+            for h in hosts:
+                payload.append(
+                    {
+                        "ip": h.ip,
+                        "hostname": h.hostname,
+                        "status": h.status,
+                        "mac": h.mac,
+                        "ports": [
+                            {
+                                "port": p.port,
+                                "protocol": p.protocol,
+                                "state": p.state,
+                                "service": p.service,
+                            }
+                            for p in h.ports
+                        ],
+                    }
+                )
             append_record(
                 ScanRecord(
                     kind="nmap",
                     target=target,
                     summary=f"{len(hosts)} hosts",
-                    payload=[{"ip": h.ip, "ports": len(h.ports)} for h in hosts],
+                    payload=payload,
                 )
             )
+            window = self.window()
+            if hasattr(window, "notify_scan_recorded"):
+                window.notify_scan_recorded()  # type: ignore[attr-defined]
         except Exception as exc:
             self.status_label.setText(f"Error Nmap: {exc}")
         finally:

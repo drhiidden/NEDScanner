@@ -5,10 +5,12 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
 import time
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 from qasync import asyncSlot
 
 from app.adapters.nmcli_adapter import WifiScanAdapter
 from app.core.config import is_demo_mode
+from app.core.known_inventory import wifi_trust_label
 from app.core.scan_history import ScanRecord, append_record
 from app.models.wifi_network import WifiNetwork
 
@@ -134,6 +136,9 @@ class WifiTab(QWidget):
                     payload=[n.__dict__ for n in networks],
                 )
             )
+            window = self.window()
+            if hasattr(window, "notify_scan_recorded"):
+                window.notify_scan_recorded()  # type: ignore[attr-defined]
         except Exception as exc:
             self.status_label.setText(f"Error Wi-Fi: {exc}")
         finally:
@@ -152,6 +157,10 @@ class WifiTab(QWidget):
             self.networks_table.setItem(row, 3, QTableWidgetItem(f"{network.signal_dbm} dBm"))
             self.networks_table.setItem(row, 4, QTableWidgetItem(network.security))
             self.networks_table.item(row, 0).setData(Qt.ItemDataRole.UserRole, network)
+            if wifi_trust_label(network.ssid, network.bssid) == "Desconocida":
+                tint = QColor(255, 140, 60)
+                for col in range(5):
+                    self.networks_table.item(row, col).setBackground(tint)
     
     def on_network_selected(self):
         """Maneja la selección de una red en la tabla"""

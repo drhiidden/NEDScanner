@@ -309,6 +309,119 @@ O ejecute la aplicación con sudo (no recomendado).
         
         advanced_layout.addStretch()
         settings_tabs.addTab(advanced_tab, "Avanzado")
+
+        inventory_tab = QWidget()
+        inventory_layout = QVBoxLayout()
+        inventory_tab.setLayout(inventory_layout)
+
+        from app.core.known_inventory import (
+            add_known_host,
+            add_known_network,
+            list_devices,
+            list_networks,
+            load_inventory,
+            remove_device_at,
+            remove_network_at,
+        )
+        from app.core.paths import known_devices_path
+
+        self._inv_devices_list = QListWidget()
+        self._inv_networks_list = QListWidget()
+        path_label = QLabel(f"Archivo: {known_devices_path()}")
+        path_label.setWordWrap(True)
+        inventory_layout.addWidget(path_label)
+
+        dev_group = QGroupBox("Dispositivos LAN conocidos")
+        dev_l = QVBoxLayout()
+        dev_l.addWidget(self._inv_devices_list)
+        dev_btn = QHBoxLayout()
+        self._inv_dev_ip = QLineEdit()
+        self._inv_dev_ip.setPlaceholderText("IP")
+        self._inv_dev_mac = QLineEdit()
+        self._inv_dev_mac.setPlaceholderText("MAC (opcional)")
+        self._inv_dev_name = QLineEdit()
+        self._inv_dev_name.setPlaceholderText("Hostname o etiqueta")
+        dev_btn.addWidget(self._inv_dev_ip)
+        dev_btn.addWidget(self._inv_dev_mac)
+        dev_btn.addWidget(self._inv_dev_name)
+        add_dev_btn = QPushButton("Añadir")
+        remove_dev_btn = QPushButton("Quitar selección")
+        dev_btn.addWidget(add_dev_btn)
+        dev_btn.addWidget(remove_dev_btn)
+        dev_l.addLayout(dev_btn)
+        dev_group.setLayout(dev_l)
+        inventory_layout.addWidget(dev_group)
+
+        net_group = QGroupBox("Redes Wi‑Fi conocidas")
+        net_l = QVBoxLayout()
+        net_l.addWidget(self._inv_networks_list)
+        net_btn = QHBoxLayout()
+        self._inv_net_ssid = QLineEdit()
+        self._inv_net_ssid.setPlaceholderText("SSID")
+        self._inv_net_bssid = QLineEdit()
+        self._inv_net_bssid.setPlaceholderText("BSSID (opcional)")
+        net_btn.addWidget(self._inv_net_ssid)
+        net_btn.addWidget(self._inv_net_bssid)
+        add_net_btn = QPushButton("Añadir")
+        remove_net_btn = QPushButton("Quitar selección")
+        net_btn.addWidget(add_net_btn)
+        net_btn.addWidget(remove_net_btn)
+        net_l.addLayout(net_btn)
+        net_group.setLayout(net_l)
+        inventory_layout.addWidget(net_group)
+
+        reload_inv_btn = QPushButton("Recargar inventario")
+        inventory_layout.addWidget(reload_inv_btn)
+
+        def refresh_inventory_lists() -> None:
+            self._inv_devices_list.clear()
+            for d in list_devices():
+                self._inv_devices_list.addItem(
+                    f"{d.get('ip', '?')}  {d.get('mac', '')}  {d.get('hostname') or d.get('label', '')}"
+                )
+            self._inv_networks_list.clear()
+            for n in list_networks():
+                self._inv_networks_list.addItem(f"{n.get('ssid', '?')}  {n.get('bssid', '')}")
+
+        def on_add_dev() -> None:
+            ip = self._inv_dev_ip.text().strip()
+            if not ip:
+                return
+            add_known_host(ip, self._inv_dev_mac.text() or None, self._inv_dev_name.text() or None)
+            self._inv_dev_ip.clear()
+            self._inv_dev_mac.clear()
+            self._inv_dev_name.clear()
+            refresh_inventory_lists()
+
+        def on_add_net() -> None:
+            ssid = self._inv_net_ssid.text().strip()
+            if not ssid:
+                return
+            add_known_network(ssid, self._inv_net_bssid.text() or None)
+            self._inv_net_ssid.clear()
+            self._inv_net_bssid.clear()
+            refresh_inventory_lists()
+
+        def on_remove_dev() -> None:
+            row = self._inv_devices_list.currentRow()
+            if row >= 0:
+                remove_device_at(row)
+                refresh_inventory_lists()
+
+        def on_remove_net() -> None:
+            row = self._inv_networks_list.currentRow()
+            if row >= 0:
+                remove_network_at(row)
+                refresh_inventory_lists()
+
+        add_dev_btn.clicked.connect(on_add_dev)
+        add_net_btn.clicked.connect(on_add_net)
+        remove_dev_btn.clicked.connect(on_remove_dev)
+        remove_net_btn.clicked.connect(on_remove_net)
+        reload_inv_btn.clicked.connect(refresh_inventory_lists)
+        load_inventory()
+        refresh_inventory_lists()
+        settings_tabs.addTab(inventory_tab, "Inventario")
         
         # Añadir pestañas al layout principal
         main_layout.addWidget(settings_tabs)

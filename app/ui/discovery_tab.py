@@ -7,12 +7,14 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QCheckBox, QSpinBox, QFormLayout, QLineEdit,
                              QRadioButton, QButtonGroup, QGridLayout, QFileDialog)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 import logging
 
 from qasync import asyncSlot
 
 from app.adapters.discovery_adapter import DiscoveryAdapter
 from app.core.config import is_demo_mode
+from app.core.known_inventory import add_known_host, host_trust_label
 from app.core.scan_history import ScanRecord, append_record
 from app.models.host import HostRecord
 
@@ -103,8 +105,8 @@ class DiscoveryTab(QWidget):
         results_group = QGroupBox("Dispositivos Descubiertos")
         results_layout = QVBoxLayout()
         
-        self.results_table = QTableWidget(0, 4)
-        self.results_table.setHorizontalHeaderLabels(["IP", "MAC", "Hostname", "Método"])
+        self.results_table = QTableWidget(0, 5)
+        self.results_table.setHorizontalHeaderLabels(["IP", "MAC", "Hostname", "Método", "Estado"])
         self.results_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self.results_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.results_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -121,8 +123,13 @@ class DiscoveryTab(QWidget):
         self.nmap_scan_button = QPushButton("Escanear con Nmap")
         self.nmap_scan_button.setEnabled(False)
         self.nmap_scan_button.clicked.connect(self.scan_with_nmap)
+
+        self.trust_button = QPushButton("Marcar selección como conocida")
+        self.trust_button.setEnabled(False)
+        self.trust_button.clicked.connect(self.mark_selection_known)
         
         actions_layout.addWidget(self.export_button)
+        actions_layout.addWidget(self.trust_button)
         actions_layout.addWidget(self.nmap_scan_button)
         
         results_layout.addLayout(actions_layout)
@@ -208,6 +215,9 @@ class DiscoveryTab(QWidget):
                     ],
                 )
             )
+            window = self.window()
+            if hasattr(window, "notify_scan_recorded"):
+                window.notify_scan_recorded()  # type: ignore[attr-defined]
             suffix = " (demo)" if is_demo_mode() else ""
             self.status_label.setText(f"Descubrimiento completado — {len(hosts)} host(s){suffix}")
         except ValueError as exc:
@@ -229,13 +239,47 @@ class DiscoveryTab(QWidget):
 
     def populate_hosts(self, hosts: list[HostRecord]) -> None:
         self.results_table.setRowCount(0)
+        unknown_count = 0
         for host in hosts:
             row = self.results_table.rowCount()
             self.results_table.insertRow(row)
+            trust = host_trust_label(host.ip, host.mac, host.hostname)
+            if trust == "Desconocido":
+                unknown_count += 1
             self.results_table.setItem(row, 0, QTableWidgetItem(host.ip))
             self.results_table.setItem(row, 1, QTableWidgetItem(host.mac or "—"))
             self.results_table.setItem(row, 2, QTableWidgetItem(host.hostname or "—"))
             self.results_table.setItem(row, 3, QTableWidgetItem(host.method_label()))
+            state_item = QTableWidgetItem(trust)
+            if trust == "Desconocido":
+                orange = QColor(255, 140, 60)
+                for col in range(5):
+                    item = self.results_table.item(row, col)
+                    if item:
+                        item.setBackground(orange)
+            self.results_table.setItem(row, 4, state_item)
+        self.trust_button.setEnabled(len(hosts) > 0)
+        if unknown_count:
+            self.status_label.setText(
+                f"{len(hosts)} host(s) — {unknown_count} desconocido(s) (revisa columna Estado)"
+            )
+
+    def mark_selection_known(self) -> None:
+        selected = self.results_table.selectedItems()
+        if not selected:
+            for host in self._last_hosts:
+                add_known_host(host.ip, host.mac, host.hostname)
+            self.populate_hosts(self._last_hosts)
+            self.status_label.setText("Todo el último escaneo añadido al inventario")
+            return
+        rows = sorted({self.results_table.row(i) for i in selected})
+        for row in rows:
+            ip = self.results_table.item(row, 0).text()
+            mac = self.results_table.item(row, 1).text()
+            hostname = self.results_table.item(row, 2).text()
+            add_known_host(ip, None if mac == "—" else mac, None if hostname == "—" else hostname)
+        self.populate_hosts(self._last_hosts)
+        self.status_label.setText(f"{len(rows)} dispositivo(s) guardados en ~/.nedscaner/known-devices.json")
     
     def export_results(self) -> None:
         if not self._last_hosts:

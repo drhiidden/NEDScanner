@@ -150,7 +150,13 @@ class MainWindow(QMainWindow):
     def show_results(self):
         """Muestra la pestaña de resultados"""
         self.tab_widget.setCurrentWidget(self.results_tab)
+        self.results_tab.reload_from_history()
         self.status_bar.showMessage("Mostrando historial de escaneos")
+
+    def notify_scan_recorded(self) -> None:
+        """Actualiza historial/alertas si la pestaña Resultados está activa."""
+        if self.tab_widget.currentWidget() is self.results_tab:
+            self.results_tab.reload_from_history()
     
     def show_settings(self):
         """Muestra la pestaña de configuración"""
