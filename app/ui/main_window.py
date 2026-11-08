@@ -1,6 +1,13 @@
-from PyQt6.QtWidgets import QMainWindow, QTabWidget, QVBoxLayout, QWidget, QStatusBar, QLabel, QToolBar, QMenu
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtGui import QAction, QCloseEvent, QIcon
+from PyQt6.QtWidgets import (
+    QMainWindow,
+    QStatusBar,
+    QTabWidget,
+    QToolBar,
+    QVBoxLayout,
+    QWidget,
+)
+from PyQt6.QtCore import QSize, Qt
 
 from app.ui.wifi_tab import WifiTab
 from app.ui.nmap_tab import NmapTab
@@ -186,3 +193,11 @@ class MainWindow(QMainWindow):
         self.nmap_tab.scan_type_combo.setCurrentIndex(1)
         self.status_bar.showMessage(f"Nmap listo para: {', '.join(ips)}")
         self.nmap_tab.start_scan()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        for tab in (self.discovery_tab, self.nmap_tab):
+            adapter = getattr(tab, "_adapter", None)
+            shutdown = getattr(adapter, "shutdown", None)
+            if callable(shutdown):
+                shutdown()
+        super().closeEvent(event)

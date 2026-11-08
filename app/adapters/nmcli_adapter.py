@@ -4,6 +4,7 @@ import shutil
 from typing import Optional
 
 from app.core.config import is_demo_mode
+from app.core.log_redact import redact_subprocess_stderr
 from app.core.scan_policy import validate_interface
 from app.core.demo_data import DEMO_WIFI
 from app.models.wifi_network import WifiNetwork
@@ -46,7 +47,11 @@ class WifiScanAdapter:
         )
         out, err = await proc.communicate()
         if proc.returncode != 0:
-            logger.error("nmcli falló: %s", err.decode(errors="replace"))
+            logger.error(
+                "nmcli falló (rc=%s): %s",
+                proc.returncode,
+                redact_subprocess_stderr(err),
+            )
             return []
 
         networks: list[WifiNetwork] = []

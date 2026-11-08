@@ -6,4 +6,6 @@ or environments where you have **written authorization** to perform security tes
 Unauthorized scanning or interception of third-party networks may violate local law.
 The authors are not liable for misuse.
 
-For authorized lab use only. See also [NetPwn disclaimer](https://github.com/letox4/netpwn/blob/main/DISCLAIMER.md) for the class of tools this project draws inspiration from (no code shared; GPL vs MIT).
+Use only in labs, home networks, or other environments where you control policy
+and consent. Confirm authorization in the application (Configuration → Security)
+before running scans against real targets.

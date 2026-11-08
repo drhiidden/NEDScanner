@@ -2,16 +2,38 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.8] - 2026-11-08
+
+### Changed
+
+- Documentación adoptante: roadmap propio (`docs/ROADMAP.md`); eliminado doc de paridad con terceros.
+- `DISCLAIMER.md` autocontenido; README sin referencias a otros proyectos.
+- `docs/CODE-QUALITY.md` sin metodología externa; `test_opsec` acotado a fugas de rutas privadas.
+
+## [1.0.7] - 2026-11-07
+
+### Added
+
+- `ARCHITECTURE.md`, `CONTRIBUTING.md`, `app/ports.py` (Protocol para adaptadores).
+- `TROUBLESHOOTING.md`, `app/core/log_redact.py` + tests.
+
+### Changed
+
+- Cierre ordenado: `MainWindow.closeEvent` apaga pools de descubrimiento y Nmap.
+- Logs Nmap/nmcli: objetivos y stderr recortados (menos PII en `~/.nedscaner.log`).
+
 ## [1.0.6] - 2026-11-07
 
 ### Added
 
 - Timeout global de escaneo Nmap (`asyncio.wait_for`): preferencia `nmap_scan_timeout_s`, override `NEDSCANNER_NMAP_TIMEOUT_S`.
 - Configuración → Herramientas: spinbox de timeout (30–3600 s).
+- `tests/test_opsec.py` y `tests/test_known_inventory_smoke.py`; OPSEC adoptante vía pytest (no lógica duplicada en shell).
 
 ### Changed
 
 - `app/ui/settings_tab.py` orquesta paneles en `app/ui/settings/` (general, herramientas, seguridad, avanzado, inventario).
+- `scripts/verify-local.sh` delega solo en `pytest tests/` (Tier D mínimo).
 
 ## [1.0.5] - 2026-11-07
 
@@ -61,8 +83,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 - Adaptadores demo/real para Wi‑Fi (`nmcli`) y escaneo Nmap (`python-nmap`).
 - Export JSON y historial de sesión en descubrimiento; handoff descubrimiento → pestaña Nmap.
-- `scripts/verify-local.sh`: smoke OPSEC + adaptadores (modo demo, sin CI remoto).
-- `docs/NETPWN-PARITY-ROADMAP.md` y `DISCLAIMER.md` (iteración 1.0+).
+- `scripts/verify-local.sh`: smoke de adaptadores (modo demo).
+- `docs/ROADMAP.md` y `DISCLAIMER.md`.
 
 ### Fixed
 
@@ -70,7 +92,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
 ### Changed
 
-- README: modo demo, roadmap NetPwn (solo patrones MIT), nota pre-push con `verify-local.sh`.
+- README: modo demo, enlace a roadmap y guía de contribución.
 
 ## [1.0.0] - 2026-11-07
 

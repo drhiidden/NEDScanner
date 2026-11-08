@@ -11,6 +11,10 @@
 
 NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y visualización de redes en sistemas Linux, siguiendo una arquitectura hexagonal que reutiliza herramientas existentes como Nmap, NetworkManager y Scapy.
 
+## Motivación
+
+Quieres saber **qué hay en tu LAN** (home lab, Wi‑Fi de casa, red de práctica) sin depender solo de la terminal: ver hosts, comparar escaneos, marcar dispositivos que ya conoces y destacar lo que **no** reconoces. No sustituye un IDS corporativo; es una herramienta local de inventario y aprendizaje, con autorización explícita antes de escanear rangos reales.
+
 ## Características
 
 - **Escaneo de redes Wi-Fi**: Detecta y muestra información detallada de redes inalámbricas.
@@ -20,17 +24,19 @@ NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y vi
 - **Interfaz asíncrona**: No bloquea la UI durante operaciones de red intensivas.
 - **Modo demo**: `NEDSCANNER_DEMO=1 python main.py` o `python main.py --demo` (sin root; útil en WSL/CI).
 
-Roadmap inspirado en [NetPwn](https://github.com/letox4/netpwn) (solo patrones; licencia MIT): [docs/NETPWN-PARITY-ROADMAP.md](docs/NETPWN-PARITY-ROADMAP.md).
+Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md) · arquitectura: [ARCHITECTURE.md](ARCHITECTURE.md) · contribuir: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.6**).
+Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.8**).
+
+**Uso responsable:** [DISCLAIMER.md](DISCLAIMER.md).
 
 **Seguridad:** [docs/SECURITY-DESIGN.md](docs/SECURITY-DESIGN.md) — validación de objetivos y autorización en UI (Configuración → Seguridad).
 
-**Calidad:** [docs/CODE-QUALITY.md](docs/CODE-QUALITY.md) — checklist alineado con hcp-skills.
+**Problemas frecuentes:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 **Inventario de confianza:** `~/.nedscaner/known-devices.json` — dispositivos/redes que *tú* declaras conocidos; el resto aparece como **Desconocido** (naranja) en Descubrimiento/Wi‑Fi.
 
-**Antes de push:** `pip install -r requirements-dev.txt` y `./scripts/verify-local.sh` (smoke + pytest).
+Developers: [docs/CODE-QUALITY.md](docs/CODE-QUALITY.md) · tests con `pytest -q tests/` (ver [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## Requisitos
 
@@ -44,18 +50,13 @@ Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.6**).
 
 1. **Clonar el repositorio**:
    ```bash
-   git clone <URL_DEL_REPOSITORIO>
-   cd NEDScaner
+   git clone https://github.com/drhiidden/NEDScanner.git
+   cd NEDScanner
    ```
 
-2. **Crear y activar un entorno virtual** (opcional pero recomendado):
+2. **Crear y activar un entorno virtual** (recomendado):
    ```bash
-   python -m venv venv
-   
-   # En Windows
-   .\venv\Scripts\activate
-   
-   # En Linux/macOS
+   python3 -m venv venv
    source venv/bin/activate
    ```
 
@@ -160,9 +161,4 @@ Si hay errores al iniciar la aplicación:
 
 ## Licencia
 
-Este proyecto está licenciado bajo [LICENCIA] - vea el archivo LICENSE para más detalles.
----
-
-## Metodología
-
-Desarrollado con [HCP (Human-Code-AI Protocol)](https://github.com/haletheia/human-code-ai-protocol) — protocolo git-native para Context Engineering.
+Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).

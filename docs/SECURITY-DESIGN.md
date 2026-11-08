@@ -1,17 +1,17 @@
 # Diseño de seguridad — NEDScanner
 
-**Versión:** 1.0.6 · **Licencia:** MIT · **Alcance:** herramienta local de auditoría en red propia.
+**Versión:** 1.0.8 · **Licencia:** MIT · **Alcance:** herramienta local de auditoría en red propia.
 
-## Principios (alineados con HCP Skills)
+## Principios
 
-| Principio | Implementación en código | Skill HCP (referencia pública) |
-|-----------|--------------------------|--------------------------------|
-| Fail-closed en entradas | `app/core/scan_policy.py` | `verification/ai-output-verification` |
-| Sin shell injection | `subprocess_exec` con argv fijos (`nmcli`); Nmap vía API, objetivo validado | `10-security/secure-bash-scripting` |
-| Alcance mínimo | CIDR máx `/20`, redes privadas por defecto | `red-team-auditor` (SSRF/lateral) |
-| Autorización explícita | Diálogo UI + `~/.nedscaner/preferences.json` o env `NEDSCANNER_I_ACK_AUTHORIZED=1` | Uso responsable + `DISCLAIMER.md` |
-| Datos locales protegidos | `safe_io.atomic_write_json`, permisos `0600` en `~/.nedscaner/` | `ide-security-auditor` (credenciales en disco) |
-| OPSEC en repo | `scripts/verify-local.sh` | `git/oss-safe-publish` |
+| Principio | Implementación en código |
+|-----------|--------------------------|
+| Fail-closed en entradas | `app/core/scan_policy.py` |
+| Sin shell injection | `subprocess` con argv fijos (`nmcli`); Nmap vía API, objetivo validado |
+| Alcance mínimo | CIDR máx `/20`, redes privadas por defecto |
+| Autorización explícita | Diálogo UI + `~/.nedscaner/preferences.json` o env `NEDSCANNER_I_ACK_AUTHORIZED=1` |
+| Datos locales protegidos | `safe_io.atomic_write_json`, permisos `0600` en `~/.nedscaner/` |
+| Verificación antes de release | `scripts/verify-local.sh` + pytest |
 
 ## Variables de entorno
 
@@ -40,4 +40,4 @@
 ./scripts/verify-local.sh
 ```
 
-Incluye smoke de política + inventario. Antes de push: revisar `git diff` (sin secretos ni rutas internas de hub corporativo).
+Incluye smoke de política, adaptadores demo e inventario.

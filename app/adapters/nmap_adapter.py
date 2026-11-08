@@ -4,6 +4,7 @@ import shutil
 from concurrent.futures import ThreadPoolExecutor
 
 from app.core.config import is_demo_mode
+from app.core.log_redact import redact_for_log
 from app.core.scan_policy import validate_nmap_targets
 from app.core.user_prefs import get_nmap_scan_timeout_s
 from app.core.demo_data import DEMO_NMAP
@@ -56,7 +57,11 @@ class NmapScanAdapter:
                 timeout=timeout,
             )
         except asyncio.TimeoutError as exc:
-            logger.warning("Nmap excedió timeout (%ss) para %s", timeout, safe_target)
+            logger.warning(
+                "Nmap excedió timeout (%ss) para %s",
+                timeout,
+                redact_for_log(safe_target),
+            )
             raise TimeoutError(
                 f"Escaneo Nmap cancelado tras {timeout}s (ajusta en Configuración → Herramientas)"
             ) from exc

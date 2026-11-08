@@ -435,14 +435,10 @@ Si encuentras un bug o tienes una sugerencia:
 
 ## 🚀 Roadmap
 
-Ver [docs/NETPWN-PARITY-ROADMAP.md](docs/NETPWN-PARITY-ROADMAP.md) (paridad defensiva vs NetPwn GPL).
+Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 - [x] **v1.0**: Descubrimiento ARP/ICMP real + modo demo
-- [ ] **v1.1**: Exportar resultados a PDF/JSON · Wi-Fi/Nmap wired
-- [ ] **v1.2**: Topología grafo · integración Wireshark (solo lectura)
-- [ ] **v1.3**: Notificaciones de nuevos hosts detectados
-- [ ] **v2.0**: Modo daemon (monitoreo continuo en background)
-
----
-
-**Metodología de desarrollo**: [HCP (Human-Code-AI Protocol)](https://github.com/haletheia/human-code-ai-protocol)
+- [ ] **v1.1**: Exportar resultados · Wi‑Fi/Nmap en red real estable
+- [ ] **v1.2**: Topología grafo · huella ligera (inventario)
+- [ ] **v1.3**: Alertas de hosts nuevos vs inventario de confianza
+- [ ] **v2.0**: Monitoreo continuo opcional (solo lectura)
