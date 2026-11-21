@@ -26,6 +26,8 @@ Quieres saber **qué hay en tu LAN** (home lab, Wi‑Fi de casa, red de práctic
 
 Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md) · arquitectura: [ARCHITECTURE.md](ARCHITECTURE.md) · contribuir: [CONTRIBUTING.md](CONTRIBUTING.md).
 
+**Proyecto relacionado (misma familia Lab, distinto repo):** [network-security-scanner](https://github.com/drhiidden/network-security-scanner) — CLI académico; NEDScanner es la GUI de inventario para uso diario en home lab.
+
 Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.8**).
 
 **Uso responsable:** [DISCLAIMER.md](DISCLAIMER.md).
