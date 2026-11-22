@@ -24,6 +24,10 @@ pip install -r requirements.txt -r requirements-dev.txt
 
 Incluye tests de política, adaptadores demo, preferencias y comprobación de que la documentación pública no arrastra rutas privadas (`tests/test_opsec.py`).
 
+## Mantenimiento (HHP)
+
+El flujo de publicación del mantenedor sigue el **Human Harness Protocol (HHP)**: verificación local (Gate VERIFY) antes de subir cambios, checklist humana en push y docs adoptantes sin contexto privado. No es un requisito para contribuir desde un fork; solo describe cómo se opera el repo canónico. Norma OSS de referencia: [Human Code AI Protocol](https://github.com/haletheia/human-code-ai-protocol).
+
 ## Estilo de cambios
 
 - Lógica de red y validación en `app/core/` — sin PyQt.
