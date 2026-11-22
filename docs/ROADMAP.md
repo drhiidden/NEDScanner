@@ -30,12 +30,19 @@ Prioridades orientadas a **inventario y visibilidad** en redes propias o autoriz
 - Persistencia y exportación mejorada de resultados de escaneo
 - Comparación visual entre dos sesiones del mismo rango
 
-### v1.2
+### v1.2 — Aprendizaje (ADR Lab Tooling-002)
+
+- Pestaña **Aprendizaje** con material migrado desde [network-security-scanner](https://github.com/drhiidden/network-security-scanner) (`learn/`)
+- **Tutorial** primer arranque + asistente contextual por pestaña
+- Ejemplos enlazados al **último escaneo real** del usuario (demo/export sin IPs sensibles)
+- Plan hub: `Laboratorio/.procontext/.../nedscanner-learning-integration-plan-ssot.md`
+
+### v1.3
 
 - Pestaña **Topología** (grafo simple: hosts y enlaces inferidos)
 - Señales ligeras de huella (p. ej. TTL) solo con fines de inventario
 
-### v1.3+
+### v1.4+
 
 - Alertas cuando aparece un host nuevo respecto al inventario de confianza
 - Sniffer **solo lectura** con filtros BPF (homelab, opt-in)

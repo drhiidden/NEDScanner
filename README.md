@@ -11,6 +11,31 @@
 
 NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y visualización de redes en sistemas Linux, siguiendo una arquitectura hexagonal que reutiliza herramientas existentes como Nmap, NetworkManager y Scapy.
 
+**Inventario de tu red + aprendizaje:** lecciones en [docs/learn/](docs/learn/README.md) pensadas para enlazarse con tus escaneos reales (pestaña Aprendizaje en roadmap v1.2).
+
+## Visión del producto
+
+```mermaid
+flowchart LR
+  subgraph GUI["NEDScanner GUI"]
+    D[Descubrimiento]
+    N[Nmap / puertos]
+    W[Wi‑Fi]
+    R[Resultados]
+    L[Aprendizaje v1.2]
+  end
+  subgraph Learn["docs/learn"]
+    F[Fundamentos]
+    P[Recon pasivo]
+    E[Escaneo puertos]
+  end
+  D --> R
+  N --> R
+  Learn -.->|"tu último escaneo"| L
+  L -.-> D
+  L -.-> N
+```
+
 ## Motivación
 
 Quieres saber **qué hay en tu LAN** (home lab, Wi‑Fi de casa, red de práctica) sin depender solo de la terminal: ver hosts, comparar escaneos, marcar dispositivos que ya conoces y destacar lo que **no** reconoces. No sustituye un IDS corporativo; es una herramienta local de inventario y aprendizaje, con autorización explícita antes de escanear rangos reales.
@@ -23,10 +48,17 @@ Quieres saber **qué hay en tu LAN** (home lab, Wi‑Fi de casa, red de práctic
 - **Historial y comparación**: Almacena resultados de escaneos para análisis y comparación.
 - **Interfaz asíncrona**: No bloquea la UI durante operaciones de red intensivas.
 - **Modo demo**: `NEDSCANNER_DEMO=1 python main.py` o `python main.py --demo` (sin root; útil en WSL/CI).
+- **Ruta de aprendizaje (docs):** [docs/learn/README.md](docs/learn/README.md) — material migrado del antiguo proyecto educativo CLI.
+
+## Learning path (5 min)
+
+1. Lee [TCP/IP](docs/learn/01-fundamentos-redes/tcp-ip-modelo-osi.md) → ejecuta **Descubrimiento** en modo demo.
+2. Lee [Puertos y servicios](docs/learn/01-fundamentos-redes/puertos-servicios.md) → pestaña **Escaneo de Red**.
+3. Marca dispositivos en **Conocido / Desconocido** y vuelve a escanear.
 
 Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md) · arquitectura: [ARCHITECTURE.md](ARCHITECTURE.md) · contribuir: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-**Proyecto relacionado (misma familia Lab, distinto repo):** [network-security-scanner](https://github.com/drhiidden/network-security-scanner) — CLI académico; NEDScanner es la GUI de inventario para uso diario en home lab.
+> **Nota (2026-11):** el material educativo del repo [network-security-scanner](https://github.com/drhiidden/network-security-scanner) se integra aquí; ese repositorio quedará archivado. No es un segundo producto activo.
 
 Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.8**).
 
