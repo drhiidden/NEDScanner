@@ -44,7 +44,13 @@ def load_stylesheet(app):
         logger.error(f"Error al cargar los estilos: {e}")
         return False
 
-async def _show_demo_notice(main_window: MainWindow) -> None:
+async def _post_show_setup(main_window: MainWindow) -> None:
+    from app.ui.first_run_wizard import run_first_run_wizard, should_offer_onboarding
+
+    if should_offer_onboarding():
+        if run_first_run_wizard(main_window):
+            main_window.show_learning()
+
     if is_demo_mode():
         QMessageBox.information(
             main_window,
@@ -70,7 +76,7 @@ def main() -> int:
     main_window.show()
 
     with loop:
-        loop.run_until_complete(_show_demo_notice(main_window))
+        loop.run_until_complete(_post_show_setup(main_window))
         return loop.run_forever()
 
 

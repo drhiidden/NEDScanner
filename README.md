@@ -11,7 +11,7 @@
 
 NEDScanner es una aplicación GUI desarrollada con PyQt6 para la detección y visualización de redes en sistemas Linux, siguiendo una arquitectura hexagonal que reutiliza herramientas existentes como Nmap, NetworkManager y Scapy.
 
-**Inventario de tu red + aprendizaje:** lecciones en [docs/learn/](docs/learn/README.md) pensadas para enlazarse con tus escaneos reales (pestaña Aprendizaje en roadmap v1.2).
+**Inventario de tu red + aprendizaje:** lecciones en [docs/learn/](docs/learn/README.md) enlazadas con tus escaneos (pestaña **Aprendizaje**; asistente de primer arranque en la primera ejecución).
 
 ## Visión del producto
 
@@ -48,7 +48,7 @@ Quieres saber **qué hay en tu LAN** (home lab, Wi‑Fi de casa, red de práctic
 - **Historial y comparación**: Almacena resultados de escaneos para análisis y comparación.
 - **Interfaz asíncrona**: No bloquea la UI durante operaciones de red intensivas.
 - **Modo demo**: `NEDSCANNER_DEMO=1 python main.py` o `python main.py --demo` (sin root; útil en WSL/CI).
-- **Aprendizaje en la app:** pestaña **Aprendizaje** (F1) — lecciones + enlace al último escaneo de la sesión.
+- **Aprendizaje en la app:** pestaña **Aprendizaje** (F1); botón **Ayuda (?)** por pestaña; tutorial repetible en Ayuda → «Tutorial primeros pasos».
 - **Ruta de aprendizaje (docs):** [docs/learn/README.md](docs/learn/README.md) — material migrado del antiguo proyecto educativo CLI.
 
 ## Learning path (5 min)
@@ -61,7 +61,7 @@ Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md) · arquitectura: [ARCHITECTURE.md](A
 
 > **Nota (2026-11):** el material educativo del repo [network-security-scanner](https://github.com/drhiidden/network-security-scanner) se integra aquí; ese repositorio quedará archivado. No es un segundo producto activo.
 
-Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.8**).
+Historial de versiones: [CHANGELOG.md](CHANGELOG.md) (actual: **v1.0.10**).
 
 **Uso responsable:** [DISCLAIMER.md](DISCLAIMER.md).
 

@@ -18,6 +18,7 @@ from app.ui.learning_tab import LearningTab
 from app.ui.icon_provider import IconProvider
 from app.core.config import is_demo_mode
 from app.core.user_prefs import is_scan_authorized
+from app.ui.context_help import show_tab_help, tab_key_from_index
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -64,6 +65,15 @@ class MainWindow(QMainWindow):
         self.action_settings.setStatusTip("Abrir configuración")
         self.action_settings.triggered.connect(self.show_settings)
         self.toolbar.addAction(self.action_settings)
+
+        self.toolbar.addSeparator()
+
+        self.action_context_help = QAction(
+            IconProvider.get_icon("help"), "Ayuda (?)", self
+        )
+        self.action_context_help.setStatusTip("Ayuda contextual de la pestaña activa")
+        self.action_context_help.triggered.connect(self.show_context_help)
+        self.toolbar.addAction(self.action_context_help)
         
         # Crear menú
         self.menu_bar = self.menuBar()
@@ -102,7 +112,13 @@ class MainWindow(QMainWindow):
         action_learning.setShortcut("F1")
         action_learning.setStatusTip("Lecciones y práctica con tu último escaneo")
         action_learning.triggered.connect(self.show_learning)
+        action_tutorial = QAction(
+            IconProvider.get_icon("help"), "Tutorial &primeros pasos", self
+        )
+        action_tutorial.setStatusTip("Repetir el asistente de bienvenida")
+        action_tutorial.triggered.connect(self.run_tutorial_wizard)
         help_menu.addAction(action_learning)
+        help_menu.addAction(action_tutorial)
         help_menu.addAction(action_about)
         
         # Widget central
@@ -190,6 +206,19 @@ class MainWindow(QMainWindow):
         self.tab_widget.setCurrentWidget(self.learning_tab)
         self.learning_tab.refresh_context()
         self.status_bar.showMessage("Aprendizaje — lecciones y tu último escaneo")
+
+    def show_context_help(self) -> None:
+        key = tab_key_from_index(self.tab_widget.currentIndex())
+        if key:
+            show_tab_help(self, key)
+        else:
+            show_tab_help(self, "learning")
+
+    def run_tutorial_wizard(self) -> None:
+        from app.ui.first_run_wizard import run_first_run_wizard
+
+        if run_first_run_wizard(self):
+            self.show_learning()
 
     def go_to_practice(self, kind: str) -> None:
         if kind == "wifi":

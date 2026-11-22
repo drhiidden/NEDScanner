@@ -2,6 +2,15 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.10] - 2026-11-22
+
+### Added
+
+- Asistente **primer arranque** (`QWizard`): bienvenida, uso responsable, demo vs real, autorización opcional.
+- Preferencia `onboarding_complete` en `preferences.json`; variable `NEDSCANNER_SKIP_ONBOARDING=1` para CI.
+- Ayuda contextual: botón **Ayuda (?)** en barra de herramientas + menú «Tutorial primeros pasos».
+- `app/ui/first_run_wizard.py`, `app/ui/context_help.py`.
+
 ## [1.0.9] - 2026-11-22
 
 ### Added

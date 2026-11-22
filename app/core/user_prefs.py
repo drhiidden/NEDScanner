@@ -14,6 +14,7 @@ _DEFAULTS: dict[str, Any] = {
     "scan_authorized": False,
     "allow_public_scan": False,
     "nmap_scan_timeout_s": 300,
+    "onboarding_complete": False,
 }
 
 _NMAP_TIMEOUT_MIN = 30
@@ -89,4 +90,16 @@ def set_nmap_scan_timeout_s(seconds: int) -> None:
     data["nmap_scan_timeout_s"] = max(
         _NMAP_TIMEOUT_MIN, min(_NMAP_TIMEOUT_MAX, int(seconds))
     )
+    save_preferences(data)
+
+
+def is_onboarding_complete() -> bool:
+    if os.environ.get("NEDSCANNER_SKIP_ONBOARDING", "").strip() == "1":
+        return True
+    return bool(load_preferences().get("onboarding_complete"))
+
+
+def set_onboarding_complete(complete: bool = True) -> None:
+    data = load_preferences()
+    data["onboarding_complete"] = bool(complete)
     save_preferences(data)
