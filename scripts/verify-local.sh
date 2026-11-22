@@ -13,4 +13,9 @@ fi
 echo "== pytest =="
 env -u NEDSCANNER_DEMO "$PY" -m pytest -q tests/
 
+echo "== commit messages (ahead of origin) =="
+if [ -x scripts/check-unpushed-commit-messages.sh ]; then
+  sh scripts/check-unpushed-commit-messages.sh
+fi
+
 echo "verify-local: OK"

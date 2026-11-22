@@ -39,6 +39,14 @@ El flujo de publicación del mantenedor sigue el **Human Harness Protocol (HHP)*
 - No commitear tokens, capturas con datos reales de terceros ni rutas absolutas de tu máquina de desarrollo.
 - Escaneo en red real solo en entornos autorizados; ver `DISCLAIMER.md` y Configuración → Seguridad.
 
-## Commits
+## Commits (visibles en GitHub)
 
-Mensajes conventional en inglés o español, una idea por commit. Identidad GitHub: noreply de la cuenta que publica.
+Conventional Commits en inglés o español, una idea por commit. Identidad: noreply de la cuenta que publica.
+
+**Asunto y cuerpo adoptante-neutros:** describen el producto (UI, docs, tests), no gobernanza interna del mantenedor. Evita en metadatos git: ADRs, fases de integración, nombres de repos absorbidos, rutas de hub (`.procontext`), herramientas de escaneo del taller (`oss-gem`, `OPSEC`) o siglas de flujo interno en el mensaje (la norma puede citarse en `CONTRIBUTING`, no en cada commit).
+
+```bash
+./scripts/check-unpushed-commit-messages.sh   # solo commits ahead de origin/master
+```
+
+Detalle operativo del mantenedor → hub privado; el historial remoto debe leerse como changelog de producto.
