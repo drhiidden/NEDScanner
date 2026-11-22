@@ -35,7 +35,7 @@ Prioridades orientadas a **inventario y visibilidad** en redes propias o autoriz
 - Pestaña **Aprendizaje** con material migrado desde [network-security-scanner](https://github.com/drhiidden/network-security-scanner) (`learn/`)
 - **Tutorial** primer arranque + asistente contextual por pestaña
 - Ejemplos enlazados al **último escaneo real** del usuario (demo/export sin IPs sensibles)
-- Plan hub: `Laboratorio/.procontext/.../nedscanner-learning-integration-plan-ssot.md`
+- Material didáctico: [docs/learn/README.md](learn/README.md) (público en repo)
 
 ### v1.3
 
