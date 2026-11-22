@@ -2,6 +2,17 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [1.0.9] - 2026-11-22
+
+### Added
+
+- Pestaña **Aprendizaje**: lecciones `docs/learn/` + panel con el último escaneo de la sesión; **F1** y «Ir a la práctica».
+- `app/core/learning_catalog.py`, `scan_context_for_learning.py`; tests asociados.
+
+### Changed
+
+- README: learning path + mención a pestaña Aprendizaje.
+
 ## [1.0.8] - 2026-11-08
 
 ### Changed

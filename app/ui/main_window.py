@@ -14,6 +14,7 @@ from app.ui.nmap_tab import NmapTab
 from app.ui.discovery_tab import DiscoveryTab
 from app.ui.results_tab import ResultsTab
 from app.ui.settings_tab import SettingsTab
+from app.ui.learning_tab import LearningTab
 from app.ui.icon_provider import IconProvider
 from app.core.config import is_demo_mode
 from app.core.user_prefs import is_scan_authorized
@@ -97,6 +98,11 @@ class MainWindow(QMainWindow):
         action_about = QAction(IconProvider.get_icon("about"), "&Acerca de", self)
         action_about.setStatusTip("Mostrar información sobre la aplicación")
         action_about.triggered.connect(self.show_about)
+        action_learning = QAction(IconProvider.get_icon("help"), "Centro de a&prendizaje", self)
+        action_learning.setShortcut("F1")
+        action_learning.setStatusTip("Lecciones y práctica con tu último escaneo")
+        action_learning.triggered.connect(self.show_learning)
+        help_menu.addAction(action_learning)
         help_menu.addAction(action_about)
         
         # Widget central
@@ -134,6 +140,11 @@ class MainWindow(QMainWindow):
         # Pestaña Resultados
         self.results_tab = ResultsTab()
         self.tab_widget.addTab(self.results_tab, IconProvider.get_icon("results"), "Resultados")
+
+        # Pestaña Aprendizaje (v1.2)
+        self.learning_tab = LearningTab()
+        self.learning_tab.practice_requested.connect(self.go_to_practice)
+        self.tab_widget.addTab(self.learning_tab, IconProvider.get_icon("help"), "Aprendizaje")
         
         # Pestaña Configuración
         self.settings_tab = SettingsTab()
@@ -167,12 +178,30 @@ class MainWindow(QMainWindow):
         """Actualiza historial/alertas si la pestaña Resultados está activa."""
         if self.tab_widget.currentWidget() is self.results_tab:
             self.results_tab.reload_from_history()
+        if hasattr(self, "learning_tab"):
+            self.learning_tab.refresh_context()
     
     def show_settings(self):
         """Muestra la pestaña de configuración"""
         self.tab_widget.setCurrentWidget(self.settings_tab)
         self.status_bar.showMessage("Configuración")
     
+    def show_learning(self) -> None:
+        self.tab_widget.setCurrentWidget(self.learning_tab)
+        self.learning_tab.refresh_context()
+        self.status_bar.showMessage("Aprendizaje — lecciones y tu último escaneo")
+
+    def go_to_practice(self, kind: str) -> None:
+        if kind == "wifi":
+            self.tab_widget.setCurrentWidget(self.wifi_tab)
+            self.status_bar.showMessage("Práctica: Wi‑Fi")
+        elif kind == "nmap":
+            self.tab_widget.setCurrentWidget(self.nmap_tab)
+            self.status_bar.showMessage("Práctica: escaneo Nmap")
+        else:
+            self.tab_widget.setCurrentWidget(self.discovery_tab)
+            self.status_bar.showMessage("Práctica: descubrimiento rápido")
+
     def show_about(self):
         """Muestra información sobre la aplicación"""
         # Aquí se implementaría un diálogo de "Acerca de"

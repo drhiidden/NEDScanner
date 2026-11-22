@@ -48,6 +48,7 @@ Quieres saber **qué hay en tu LAN** (home lab, Wi‑Fi de casa, red de práctic
 - **Historial y comparación**: Almacena resultados de escaneos para análisis y comparación.
 - **Interfaz asíncrona**: No bloquea la UI durante operaciones de red intensivas.
 - **Modo demo**: `NEDSCANNER_DEMO=1 python main.py` o `python main.py --demo` (sin root; útil en WSL/CI).
+- **Aprendizaje en la app:** pestaña **Aprendizaje** (F1) — lecciones + enlace al último escaneo de la sesión.
 - **Ruta de aprendizaje (docs):** [docs/learn/README.md](docs/learn/README.md) — material migrado del antiguo proyecto educativo CLI.
 
 ## Learning path (5 min)
